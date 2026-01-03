@@ -1,8 +1,36 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MapPin, Star, Calendar, DollarSign, Heart, Plus } from "lucide-react";
+import { X, MapPin, Star, Calendar, DollarSign, Heart, Plus, Hotel, IndianRupee, Phone, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { TouristPlace } from "@/data/indianDestinations";
+
+// Sample hotels data generator based on place cost
+const generateHotels = (placeName: string, avgCost: number) => {
+  const basePrice = Math.round(avgCost / 10);
+  return [
+    {
+      name: `${placeName} Budget Stay`,
+      rating: 4.2,
+      pricePerNight: Math.round(basePrice * 0.5),
+      amenities: ["Free WiFi", "AC", "Breakfast"],
+      distance: "1.5 km"
+    },
+    {
+      name: `Zostel ${placeName}`,
+      rating: 4.4,
+      pricePerNight: Math.round(basePrice * 0.4),
+      amenities: ["Free WiFi", "Cafe", "Tours"],
+      distance: "2.0 km"
+    },
+    {
+      name: `Hotel ${placeName} Inn`,
+      rating: 4.3,
+      pricePerNight: Math.round(basePrice * 0.8),
+      amenities: ["Restaurant", "Parking", "Room Service"],
+      distance: "0.8 km"
+    },
+  ];
+};
 
 interface PlaceDetailModalProps {
   place: (TouristPlace & { stateName: string }) | null;
@@ -12,6 +40,8 @@ interface PlaceDetailModalProps {
 
 const PlaceDetailModal = ({ place, isOpen, onClose }: PlaceDetailModalProps) => {
   if (!place) return null;
+
+  const hotels = place.hotels || generateHotels(place.name, place.avgCost);
 
   return (
     <AnimatePresence>
@@ -32,10 +62,10 @@ const PlaceDetailModal = ({ place, isOpen, onClose }: PlaceDetailModalProps) => 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl md:max-h-[85vh] bg-card rounded-2xl overflow-hidden z-50 flex flex-col"
+            className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl md:max-h-[90vh] bg-card rounded-2xl overflow-hidden z-50 flex flex-col"
           >
             {/* Header Image */}
-            <div className="relative h-48 md:h-64 flex-shrink-0">
+            <div className="relative h-48 md:h-56 flex-shrink-0">
               <img
                 src={place.image}
                 alt={place.name}
@@ -119,18 +149,61 @@ const PlaceDetailModal = ({ place, isOpen, onClose }: PlaceDetailModalProps) => 
                   ))}
                 </div>
               </div>
+
+              {/* Budget-Friendly Hotels */}
+              <div className="mb-6">
+                <h3 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Hotel className="w-5 h-5 text-primary" />
+                  Budget-Friendly Stays
+                </h3>
+                <div className="space-y-3">
+                  {hotels.map((hotel, index) => (
+                    <div
+                      key={index}
+                      className="bg-secondary/30 rounded-xl p-4 border border-border hover:border-primary/50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h4 className="font-medium text-foreground">{hotel.name}</h4>
+                          <p className="text-sm text-muted-foreground">{hotel.distance} from center</p>
+                        </div>
+                        <div className="flex items-center gap-1 bg-success/10 text-success px-2 py-1 rounded-lg">
+                          <Star className="w-3 h-3 fill-current" />
+                          <span className="text-sm font-medium">{hotel.rating}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap gap-1">
+                          {hotel.amenities.slice(0, 3).map((amenity, i) => (
+                            <span key={i} className="text-xs text-muted-foreground bg-background px-2 py-0.5 rounded">
+                              {amenity}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-primary flex items-center">
+                            <IndianRupee className="w-4 h-4" />
+                            {hotel.pricePerNight.toLocaleString('en-IN')}
+                          </p>
+                          <p className="text-xs text-muted-foreground">per night</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Footer Actions */}
             <div className="flex-shrink-0 p-4 border-t border-border bg-card">
               <div className="flex gap-3">
                 <Button variant="outline" className="flex-1">
-                  <Heart className="w-4 h-4 mr-2" />
-                  Save
+                  <Phone className="w-4 h-4 mr-2" />
+                  Contact Agent
                 </Button>
                 <Button className="flex-1 btn-gradient">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add to Trip
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Book Now
                 </Button>
               </div>
             </div>

@@ -5,6 +5,14 @@ import goaDest from "@/assets/destination-goa.jpg";
 import ladakhDest from "@/assets/destination-ladakh.jpg";
 import heroIndia from "@/assets/hero-india.jpg";
 
+export interface Hotel {
+  name: string;
+  rating: number;
+  pricePerNight: number;
+  amenities: string[];
+  distance: string;
+}
+
 export interface TouristPlace {
   id: string;
   name: string;
@@ -15,6 +23,7 @@ export interface TouristPlace {
   bestTime: string;
   highlights: string[];
   activities: string[];
+  hotels?: Hotel[];
 }
 
 export interface IndianState {
