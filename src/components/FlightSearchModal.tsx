@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plane, Calendar, Users, Search, ArrowRight, X } from "lucide-react";
+import { Plane, Calendar, Users, Search, ArrowRight, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -29,85 +29,62 @@ const FlightSearchModal = ({ isOpen, onClose, destinationAirport }: FlightSearch
     returnDate: "",
     passengers: "1",
   });
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<any[] | null>(null);
 
-  const handleSearch = async () => {
-    if (!formData.from || !formData.departureDate) {
+  const handleSearchFlights = () => {
+    if (!formData.from) {
       toast({
         title: "Missing Information",
-        description: "Please fill in departure city and date",
+        description: "Please enter departure city",
         variant: "destructive",
       });
       return;
     }
 
-    setIsSearching(true);
-    
-    // Simulate flight search
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const mockFlights = [
-      {
-        airline: "Air India",
-        flightNo: "AI-302",
-        departure: "06:30",
-        arrival: "09:15",
-        duration: "2h 45m",
-        price: Math.floor(Math.random() * 5000) + 3500,
-        stops: 0,
-      },
-      {
-        airline: "IndiGo",
-        flightNo: "6E-1024",
-        departure: "08:45",
-        arrival: "11:30",
-        duration: "2h 45m",
-        price: Math.floor(Math.random() * 4000) + 2800,
-        stops: 0,
-      },
-      {
-        airline: "Vistara",
-        flightNo: "UK-832",
-        departure: "14:20",
-        arrival: "17:05",
-        duration: "2h 45m",
-        price: Math.floor(Math.random() * 6000) + 4000,
-        stops: 0,
-      },
-      {
-        airline: "SpiceJet",
-        flightNo: "SG-456",
-        departure: "19:00",
-        arrival: "22:15",
-        duration: "3h 15m",
-        price: Math.floor(Math.random() * 3000) + 2500,
-        stops: 1,
-      },
-    ];
-
-    setSearchResults(mockFlights);
-    setIsSearching(false);
-  };
-
-  const handleBookFlight = (flight: any) => {
-    // Build search URL for popular flight booking sites
     const fromCity = encodeURIComponent(formData.from);
-    const toCity = encodeURIComponent(destinationAirport.code);
-    const date = formData.departureDate;
-    const passengers = formData.passengers;
+    const toCity = encodeURIComponent(destinationAirport.name || destinationAirport.code);
+    const date = formData.departureDate || new Date().toISOString().split('T')[0];
+    const passengers = formData.passengers || "1";
     
-    // Create MakeMyTrip search URL
-    const formattedDate = date.split("-").reverse().join("/"); // Convert YYYY-MM-DD to DD/MM/YYYY
-    const bookingUrl = `https://www.makemytrip.com/flight/search?itinerary=${fromCity}-${toCity}-${formattedDate}&tripType=O&paxType=A-${passengers}_C-0_I-0&intl=false&cabinClass=E`;
+    // Format date for MakeMyTrip (DD/MM/YYYY)
+    const [year, month, day] = date.split("-");
+    const formattedDate = `${day}/${month}/${year}`;
+    
+    // MakeMyTrip flight search URL
+    const makeMyTripUrl = `https://www.makemytrip.com/flight/search?itinerary=${fromCity}-${destinationAirport.code || toCity}-${formattedDate}&tripType=O&paxType=A-${passengers}_C-0_I-0&intl=false&cabinClass=E`;
     
     toast({
-      title: "Opening Booking Site",
-      description: `Redirecting to book ${flight.airline} ${flight.flightNo}...`,
+      title: "Opening MakeMyTrip",
+      description: `Searching flights from ${formData.from} to ${destinationAirport.name}...`,
     });
     
-    // Open in new tab
-    window.open(bookingUrl, "_blank");
+    window.open(makeMyTripUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleGoToAgoda = () => {
+    const toCity = encodeURIComponent(destinationAirport.name || destinationAirport.code);
+    const agodaUrl = `https://www.agoda.com/flights/search?origin=${encodeURIComponent(formData.from || "Delhi")}&destination=${toCity}&departDate=${formData.departureDate || ""}&adults=${formData.passengers || 1}`;
+    
+    toast({
+      title: "Opening Agoda",
+      description: "Redirecting to Agoda for flights...",
+    });
+    
+    window.open(agodaUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleGoToBookMyTrip = () => {
+    const toCity = encodeURIComponent(destinationAirport.name || destinationAirport.code);
+    const date = formData.departureDate || new Date().toISOString().split('T')[0];
+    
+    // Cleartrip URL (popular Indian booking site)
+    const cleartripUrl = `https://www.cleartrip.com/flights/results?adults=${formData.passengers || 1}&childs=0&infants=0&class=Economy&depart_date=${date}&from=${encodeURIComponent(formData.from || "DEL")}&to=${destinationAirport.code || toCity}&intl=n&origin=${encodeURIComponent(formData.from || "Delhi")}&destination=${toCity}&sft=&sd=${date}`;
+    
+    toast({
+      title: "Opening Cleartrip",
+      description: "Redirecting to Cleartrip for flights...",
+    });
+    
+    window.open(cleartripUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -116,7 +93,7 @@ const FlightSearchModal = ({ isOpen, onClose, destinationAirport }: FlightSearch
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Plane className="w-5 h-5 text-primary" />
-            Search Flights to {destinationAirport.code}
+            Book Flights to {destinationAirport.name || destinationAirport.code}
           </DialogTitle>
         </DialogHeader>
 
@@ -167,74 +144,71 @@ const FlightSearchModal = ({ isOpen, onClose, destinationAirport }: FlightSearch
             </div>
           </div>
 
-          <Button
-            onClick={handleSearch}
-            className="w-full btn-gradient"
-            disabled={isSearching}
-          >
-            {isSearching ? (
-              "Searching..."
-            ) : (
-              <>
-                <Search className="w-4 h-4 mr-2" />
-                Search Flights
-              </>
-            )}
-          </Button>
+          {/* Booking Options */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Book on Popular Sites</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  onClick={handleSearchFlights}
+                  className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                >
+                  <span className="font-bold">MakeMyTrip</span>
+                  <span className="text-xs opacity-90 flex items-center gap-1">
+                    Search & Book <ExternalLink className="w-3 h-3" />
+                  </span>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  onClick={handleGoToAgoda}
+                  className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                >
+                  <span className="font-bold">Agoda</span>
+                  <span className="text-xs opacity-90 flex items-center gap-1">
+                    Compare Prices <ExternalLink className="w-3 h-3" />
+                  </span>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  onClick={handleGoToBookMyTrip}
+                  className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                >
+                  <span className="font-bold">Cleartrip</span>
+                  <span className="text-xs opacity-90 flex items-center gap-1">
+                    Book Now <ExternalLink className="w-3 h-3" />
+                  </span>
+                </Button>
+              </motion.div>
+            </div>
+          </div>
 
-          {/* Search Results */}
-          {searchResults && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-4"
-            >
-              <h3 className="font-semibold text-lg">
-                Available Flights ({searchResults.length})
-              </h3>
-              <div className="space-y-3">
-                {searchResults.map((flight, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border hover:border-primary/30 transition-colors"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="font-semibold">{flight.airline}</span>
-                        <span className="text-sm text-muted-foreground">{flight.flightNo}</span>
-                        {flight.stops === 0 && (
-                          <span className="text-xs bg-success/20 text-success px-2 py-0.5 rounded-full">
-                            Non-stop
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm">
-                        <span className="font-medium">{flight.departure}</span>
-                        <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium">{flight.arrival}</span>
-                        <span className="text-muted-foreground">({flight.duration})</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-primary">
-                        ₹{flight.price.toLocaleString("en-IN")}
-                      </p>
-                      <Button
-                        size="sm"
-                        className="mt-2 btn-gradient"
-                        onClick={() => handleBookFlight(flight)}
-                      >
-                        Book Now
-                      </Button>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
+          {/* Tips */}
+          <div className="bg-muted/50 rounded-lg p-4 border border-border">
+            <h4 className="font-medium mb-2 flex items-center gap-2">
+              <Search className="w-4 h-4" />
+              Travel Tips
+            </h4>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li>• Book 2-3 weeks in advance for best prices</li>
+              <li>• Compare prices across all platforms</li>
+              <li>• Consider nearby airports for cheaper options</li>
+              <li>• Tuesday and Wednesday flights are often cheaper</li>
+            </ul>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

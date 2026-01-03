@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  console.log("Generate itinerary function called");
+  console.log("Generate itinerary function started");
   
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -15,20 +15,21 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { tripName, destination, startDate, endDate, budget, description } = body;
+    console.log("Received request body:", JSON.stringify(body));
     
-    console.log("Request body:", JSON.stringify({ tripName, destination, startDate, endDate, budget, description }));
+    const { tripName, destination, startDate, endDate, budget, description } = body;
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
-      return new Response(JSON.stringify({ error: "AI service not configured. Please contact support." }), {
+      console.error("LOVABLE_API_KEY is missing");
+      return new Response(JSON.stringify({ error: "AI service not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    console.log("API key found, length:", LOVABLE_API_KEY.length);
 
-    // Comprehensive list of Indian destinations and states
+    // List of Indian destinations and states for matching
     const destinations = [
       'jaipur', 'delhi', 'mumbai', 'goa', 'kerala', 'varanasi', 'agra', 'udaipur',
       'manali', 'shimla', 'ladakh', 'darjeeling', 'ooty', 'mysore', 'hyderabad',
@@ -39,7 +40,7 @@ serve(async (req) => {
       'gujarat', 'haryana', 'himachal pradesh', 'jharkhand', 'karnataka',
       'madhya pradesh', 'maharashtra', 'manipur', 'meghalaya', 'mizoram',
       'nagaland', 'odisha', 'punjab', 'sikkim', 'tamil nadu', 'telangana',
-      'tripura', 'uttar pradesh', 'uttarakhand', 'west bengal',
+      'tripura', 'uttar pradesh', 'uttarakhand', 'west bengal', 'andaman',
       'gangtok', 'shillong', 'imphal', 'kohima', 'aizawl', 'agartala', 'itanagar',
       'leh', 'srinagar', 'gulmarg', 'pahalgam', 'nainital', 'mussoorie', 'dehradun',
       'lonavala', 'mahabaleshwar', 'coorg', 'wayanad', 'thekkady', 'pondicherry',
@@ -52,12 +53,14 @@ serve(async (req) => {
     
     // Extract destination from trip name and description
     const combinedText = `${tripName || ''} ${description || ''}`.toLowerCase();
+    console.log("Searching for destination in:", combinedText);
     
     let inferredDestination = destination;
     if (!inferredDestination) {
       for (const dest of destinations) {
         if (combinedText.includes(dest)) {
           inferredDestination = dest.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          console.log("Found destination:", inferredDestination);
           break;
         }
       }
@@ -65,52 +68,64 @@ serve(async (req) => {
       // Fallback based on keywords
       if (!inferredDestination) {
         if (combinedText.includes('beach') || combinedText.includes('coastal')) {
-          inferredDestination = 'Goa or Kerala beaches';
+          inferredDestination = 'Goa';
         } else if (combinedText.includes('mountain') || combinedText.includes('hill') || combinedText.includes('trek')) {
-          inferredDestination = 'Shimla, Manali or Darjeeling';
+          inferredDestination = 'Manali';
         } else if (combinedText.includes('spiritual') || combinedText.includes('temple')) {
-          inferredDestination = 'Varanasi or Rishikesh';
+          inferredDestination = 'Varanasi';
         } else if (combinedText.includes('wildlife') || combinedText.includes('safari')) {
-          inferredDestination = 'Ranthambore or Jim Corbett';
+          inferredDestination = 'Ranthambore';
         } else {
-          inferredDestination = tripName || 'Popular Indian destinations';
+          inferredDestination = tripName || 'Delhi';
         }
+        console.log("Using fallback destination:", inferredDestination);
       }
     }
 
-    const finalDestination = inferredDestination;
-    const budgetStr = budget ? `₹${budget}` : 'budget-friendly';
+    // Calculate number of days
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+    console.log("Trip duration:", days, "days");
+
+    const budgetStr = budget ? `₹${budget} total` : 'budget-friendly';
     
-    console.log("Generating itinerary for:", finalDestination, "Budget:", budgetStr);
+    const systemPrompt = `You are an expert Indian travel planner. Create practical, budget-conscious day-by-day itineraries. Always respond with ONLY a valid JSON array, no markdown or extra text.`;
 
-    const systemPrompt = `You are an expert Indian travel planner. Create detailed, budget-conscious itineraries with:
-- Multiple destinations to visit efficiently
-- Cost-effective transport, food, and stay options  
-- Optimal routes to minimize travel time
-- Local experiences and hidden gems
-- Specific timings and costs in Indian Rupees (₹)`;
+    const userPrompt = `Create a ${days}-day travel itinerary for ${inferredDestination}, India.
 
-    const userPrompt = `Create a day-by-day travel itinerary:
-
-TRIP: ${tripName}
-DESTINATION: ${finalDestination}  
-DATES: ${startDate} to ${endDate}
-BUDGET: ${budgetStr}
-NOTES: ${description || 'Explore the best of the region'}
+Trip: ${tripName}
+Budget: ${budgetStr}
+Notes: ${description || 'Explore the best attractions'}
 
 Requirements:
-1. Pack MAXIMUM attractions in the time available
-2. Use BUDGET options (local transport, street food, budget stays)
-3. Optimize routes to MINIMIZE travel time
-4. Include local food spots and markets
-5. Add 4-6 activities per day with specific times
+- Create exactly ${days} days of activities
+- Include 4-6 activities per day with realistic timings
+- Focus on famous attractions, local food, markets
+- Use budget transport and dining options
+- Include costs in Indian Rupees
 
-For each activity include: time, title, description, location, cost (₹), duration (minutes), category (sightseeing/food/transport/accommodation/shopping/adventure/cultural).
+Return ONLY this JSON format (no markdown, no explanation):
+[
+  {
+    "day": 1,
+    "activities": [
+      {
+        "time": "6:00 AM",
+        "title": "Activity name",
+        "description": "Brief description",
+        "location": "Specific place",
+        "cost": 100,
+        "duration": 60,
+        "category": "sightseeing"
+      }
+    ]
+  }
+]
 
-Return ONLY valid JSON array (no markdown):
-[{"day":1,"activities":[{"time":"6:00 AM","title":"Activity","description":"Details","location":"Place","cost":100,"duration":60,"category":"sightseeing"}]}]`;
+Categories: sightseeing, food, transport, accommodation, shopping, adventure, cultural`;
 
-    console.log("Calling Lovable AI gateway...");
+    console.log("Calling AI gateway for destination:", inferredDestination);
     
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -127,80 +142,92 @@ Return ONLY valid JSON array (no markdown):
       }),
     });
 
-    console.log("AI gateway response status:", response.status);
+    console.log("AI response status:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+      console.error("AI error response:", errorText);
       
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait a moment and try again." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }), {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits." }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       
-      return new Response(JSON.stringify({ error: `AI service error: ${response.status}` }), {
+      return new Response(JSON.stringify({ error: `AI service error (${response.status})` }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const data = await response.json();
-    console.log("AI response received");
+    console.log("AI response received, processing...");
     
     const content = data.choices?.[0]?.message?.content;
     if (!content) {
-      console.error("No content in AI response:", JSON.stringify(data));
-      return new Response(JSON.stringify({ error: "No response from AI" }), {
+      console.error("Empty AI response:", JSON.stringify(data));
+      return new Response(JSON.stringify({ error: "Empty response from AI" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("AI content preview:", content.substring(0, 300));
+    console.log("Raw content length:", content.length);
+    console.log("Content preview:", content.substring(0, 200));
 
     // Parse JSON from response
     let itinerary;
     try {
-      let jsonString = content;
+      let jsonString = content.trim();
       
-      // Remove markdown code blocks
-      const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-      if (codeBlockMatch) {
-        jsonString = codeBlockMatch[1].trim();
+      // Remove markdown code blocks if present
+      if (jsonString.includes('```')) {
+        const match = jsonString.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (match) {
+          jsonString = match[1].trim();
+        }
       }
       
       // Find JSON array
-      const jsonMatch = jsonString.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        itinerary = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error("No JSON array found");
+      const startIdx = jsonString.indexOf('[');
+      const endIdx = jsonString.lastIndexOf(']');
+      
+      if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+        jsonString = jsonString.substring(startIdx, endIdx + 1);
       }
       
-      console.log("Parsed itinerary:", itinerary.length, "days");
+      itinerary = JSON.parse(jsonString);
+      console.log("Successfully parsed itinerary with", itinerary.length, "days");
+      
+      // Validate structure
+      if (!Array.isArray(itinerary) || itinerary.length === 0) {
+        throw new Error("Invalid itinerary structure");
+      }
+      
     } catch (parseError) {
-      console.error("Parse error:", parseError, "Content:", content.substring(0, 500));
+      console.error("JSON parse error:", parseError);
+      console.error("Failed content:", content.substring(0, 500));
       return new Response(JSON.stringify({ error: "Failed to parse AI response. Please try again." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    console.log("Returning successful response");
     return new Response(JSON.stringify({ itinerary }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
   } catch (error: unknown) {
-    console.error("Error generating itinerary:", error);
-    const message = error instanceof Error ? error.message : "Failed to generate itinerary";
+    console.error("Unexpected error:", error);
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
