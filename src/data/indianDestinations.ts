@@ -4,6 +4,22 @@ import varanasiDest from "@/assets/destination-varanasi.jpg";
 import goaDest from "@/assets/destination-goa.jpg";
 import ladakhDest from "@/assets/destination-ladakh.jpg";
 import heroIndia from "@/assets/hero-india.jpg";
+import udaipurDest from "@/assets/destination-udaipur.jpg";
+import agraDest from "@/assets/destination-agra.jpg";
+import rishikeshDest from "@/assets/destination-rishikesh.jpg";
+import manaliDest from "@/assets/destination-manali.jpg";
+import shimlaDest from "@/assets/destination-shimla.jpg";
+import munnarDest from "@/assets/destination-munnar.jpg";
+import jodhpurDest from "@/assets/destination-jodhpur.jpg";
+import jaisalmerDest from "@/assets/destination-jaisalmer.jpg";
+import alleppeyDest from "@/assets/destination-alleppey.jpg";
+import amritsarDest from "@/assets/destination-amritsar.jpg";
+import srinagarDest from "@/assets/destination-srinagar.jpg";
+import pangongDest from "@/assets/destination-pangong.jpg";
+import mumbaiDest from "@/assets/destination-mumbai.jpg";
+import mysoreDest from "@/assets/destination-mysore.jpg";
+import ootyDest from "@/assets/destination-ooty.jpg";
+import hampiDest from "@/assets/destination-hampi.jpg";
 
 export interface Hotel {
   name: string;
@@ -59,7 +75,7 @@ export const indianStates: IndianState[] = [
         id: "udaipur",
         name: "Udaipur (City of Lakes)",
         description: "Romantic city with beautiful lakes, palaces, and gardens. Known as the Venice of the East.",
-        image: jaipurDest,
+        image: udaipurDest,
         rating: 4.8,
         avgCost: 22000,
         bestTime: "September to March",
@@ -70,7 +86,7 @@ export const indianStates: IndianState[] = [
         id: "jodhpur",
         name: "Jodhpur (Blue City)",
         description: "Known for the majestic Mehrangarh Fort and blue-painted houses in the old city.",
-        image: jaipurDest,
+        image: jodhpurDest,
         rating: 4.7,
         avgCost: 15000,
         bestTime: "October to March",
@@ -81,7 +97,7 @@ export const indianStates: IndianState[] = [
         id: "jaisalmer",
         name: "Jaisalmer (Golden City)",
         description: "Desert city famous for its golden sandstone architecture and Thar Desert experiences.",
-        image: jaipurDest,
+        image: jaisalmerDest,
         rating: 4.8,
         avgCost: 20000,
         bestTime: "October to March",
@@ -106,13 +122,13 @@ export const indianStates: IndianState[] = [
     name: "Uttar Pradesh",
     region: "north",
     capital: "Lucknow",
-    image: heroIndia,
+    image: agraDest,
     places: [
       {
         id: "agra",
         name: "Agra",
         description: "Home to the iconic Taj Mahal, one of the Seven Wonders of the World.",
-        image: heroIndia,
+        image: agraDest,
         rating: 4.9,
         avgCost: 12000,
         bestTime: "October to March",
@@ -159,13 +175,13 @@ export const indianStates: IndianState[] = [
     name: "Uttarakhand",
     region: "north",
     capital: "Dehradun",
-    image: ladakhDest,
+    image: rishikeshDest,
     places: [
       {
         id: "rishikesh",
         name: "Rishikesh",
         description: "Yoga capital of the world located at the foothills of Himalayas on the Ganges.",
-        image: ladakhDest,
+        image: rishikeshDest,
         rating: 4.7,
         avgCost: 12000,
         bestTime: "September to May",
@@ -223,13 +239,13 @@ export const indianStates: IndianState[] = [
     name: "Himachal Pradesh",
     region: "north",
     capital: "Shimla",
-    image: ladakhDest,
+    image: shimlaDest,
     places: [
       {
         id: "shimla",
         name: "Shimla",
         description: "Former summer capital of British India, known for colonial architecture and Mall Road.",
-        image: ladakhDest,
+        image: shimlaDest,
         rating: 4.6,
         avgCost: 18000,
         bestTime: "March to June, December to February",
@@ -240,7 +256,7 @@ export const indianStates: IndianState[] = [
         id: "manali",
         name: "Manali",
         description: "Adventure capital surrounded by snow-capped mountains and lush green valleys.",
-        image: ladakhDest,
+        image: manaliDest,
         rating: 4.8,
         avgCost: 20000,
         bestTime: "October to June",
@@ -304,7 +320,7 @@ export const indianStates: IndianState[] = [
         id: "pangong-lake",
         name: "Pangong Lake",
         description: "Stunning blue lake at 14,000 ft, famous from 3 Idiots movie, changes colors throughout day.",
-        image: ladakhDest,
+        image: pangongDest,
         rating: 4.9,
         avgCost: 45000,
         bestTime: "May to September",
@@ -340,13 +356,13 @@ export const indianStates: IndianState[] = [
     name: "Punjab",
     region: "north",
     capital: "Chandigarh",
-    image: heroIndia,
+    image: amritsarDest,
     places: [
       {
         id: "amritsar",
         name: "Amritsar",
         description: "Holy city home to the Golden Temple, the most sacred shrine of Sikhism.",
-        image: heroIndia,
+        image: amritsarDest,
         rating: 4.9,
         avgCost: 12000,
         bestTime: "October to March",
@@ -371,13 +387,13 @@ export const indianStates: IndianState[] = [
     name: "Jammu & Kashmir",
     region: "north",
     capital: "Srinagar",
-    image: ladakhDest,
+    image: srinagarDest,
     places: [
       {
         id: "srinagar",
         name: "Srinagar",
         description: "Paradise on Earth with famous houseboats, Mughal gardens, and Dal Lake.",
-        image: ladakhDest,
+        image: srinagarDest,
         rating: 4.8,
         avgCost: 30000,
         bestTime: "March to October",
@@ -431,7 +447,7 @@ export const indianStates: IndianState[] = [
         id: "munnar",
         name: "Munnar",
         description: "Hill station known for tea plantations, misty mountains, and Neelakurinji flowers.",
-        image: keralaDest,
+        image: munnarDest,
         rating: 4.8,
         avgCost: 20000,
         bestTime: "September to May",
@@ -442,7 +458,7 @@ export const indianStates: IndianState[] = [
         id: "alleppey",
         name: "Alleppey (Alappuzha)",
         description: "Venice of the East - famous for backwater houseboat cruises and snake boat races.",
-        image: keralaDest,
+        image: alleppeyDest,
         rating: 4.8,
         avgCost: 25000,
         bestTime: "August to March",
@@ -517,7 +533,7 @@ export const indianStates: IndianState[] = [
         id: "ooty",
         name: "Ooty (Udhagamandalam)",
         description: "Queen of Hill Stations with beautiful gardens, tea estates, and toy train.",
-        image: keralaDest,
+        image: ootyDest,
         rating: 4.6,
         avgCost: 18000,
         bestTime: "October to June",
@@ -570,7 +586,7 @@ export const indianStates: IndianState[] = [
         id: "mysore",
         name: "Mysore",
         description: "Cultural capital with magnificent palace, yoga centers, and sandalwood products.",
-        image: heroIndia,
+        image: mysoreDest,
         rating: 4.7,
         avgCost: 15000,
         bestTime: "October to February, Dussehra (September/October)",
@@ -581,7 +597,7 @@ export const indianStates: IndianState[] = [
         id: "hampi",
         name: "Hampi",
         description: "UNESCO World Heritage Site with stunning ruins of Vijayanagara Empire.",
-        image: heroIndia,
+        image: hampiDest,
         rating: 4.9,
         avgCost: 12000,
         bestTime: "October to February",
@@ -722,13 +738,13 @@ export const indianStates: IndianState[] = [
     name: "Maharashtra",
     region: "west",
     capital: "Mumbai",
-    image: goaDest,
+    image: mumbaiDest,
     places: [
       {
         id: "mumbai",
         name: "Mumbai",
         description: "Maximum City - India's financial capital with Bollywood, street food, and iconic landmarks.",
-        image: goaDest,
+        image: mumbaiDest,
         rating: 4.6,
         avgCost: 25000,
         bestTime: "October to February",
