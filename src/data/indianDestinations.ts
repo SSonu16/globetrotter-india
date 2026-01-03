@@ -76,6 +76,25 @@ import kazirangaDest from "@/assets/destination-kaziranga.jpg";
 import ranchiDest from "@/assets/destination-ranchi.jpg";
 import chitrakoteDest from "@/assets/destination-chitrakote.jpg";
 import orchhaDest from "@/assets/destination-orchha.jpg";
+// New unique images for duplicate places
+import nalandaDest from "@/assets/destination-nalanda.jpg";
+import rajgirDest from "@/assets/destination-rajgir.jpg";
+import deogharDest from "@/assets/destination-deoghar.jpg";
+import bhopalDest from "@/assets/destination-bhopal.jpg";
+import kanhaDest from "@/assets/destination-kanha.jpg";
+import bandhavgarhDest from "@/assets/destination-bandhavgarh.jpg";
+import pellingDest from "@/assets/destination-pelling.jpg";
+import lachungDest from "@/assets/destination-lachung.jpg";
+import guwahatiDest from "@/assets/destination-guwahati.jpg";
+import majuliDest from "@/assets/destination-majuli.jpg";
+import ziroDest from "@/assets/destination-ziro.jpg";
+import kohimaDest from "@/assets/destination-kohima.jpg";
+import imphalDest from "@/assets/destination-imphal.jpg";
+import agartalaDest from "@/assets/destination-agartala.jpg";
+import aizawlDest from "@/assets/destination-aizawl.jpg";
+import northGoaDest from "@/assets/destination-north-goa.jpg";
+import southGoaDest from "@/assets/destination-south-goa.jpg";
+import oldGoaDest from "@/assets/destination-old-goa.jpg";
 
 export interface Airport {
   name: string;
@@ -781,7 +800,7 @@ export const indianStates: IndianState[] = [
         id: "north-goa",
         name: "North Goa",
         description: "Party capital with famous beaches like Baga, Calangute, and Anjuna.",
-        image: goaDest,
+        image: northGoaDest,
         rating: 4.7,
         avgCost: 22000,
         bestTime: "November to February",
@@ -792,7 +811,7 @@ export const indianStates: IndianState[] = [
         id: "south-goa",
         name: "South Goa",
         description: "Quieter beaches with Portuguese heritage, luxury resorts, and serene vibes.",
-        image: goaDest,
+        image: southGoaDest,
         rating: 4.8,
         avgCost: 25000,
         bestTime: "November to February",
@@ -803,7 +822,7 @@ export const indianStates: IndianState[] = [
         id: "old-goa",
         name: "Old Goa",
         description: "UNESCO World Heritage Site with magnificent Portuguese churches and cathedrals.",
-        image: goaDest,
+        image: oldGoaDest,
         rating: 4.6,
         avgCost: 18000,
         bestTime: "November to February",
@@ -1072,7 +1091,7 @@ export const indianStates: IndianState[] = [
         id: "nalanda",
         name: "Nalanda",
         description: "Ancient seat of learning with ruins of world's oldest university.",
-        image: varanasiDest,
+        image: nalandaDest,
         rating: 4.6,
         avgCost: 6000,
         bestTime: "October to March",
@@ -1083,7 +1102,7 @@ export const indianStates: IndianState[] = [
         id: "rajgir",
         name: "Rajgir",
         description: "Ancient city associated with Buddha and Mahavira, with hot springs.",
-        image: varanasiDest,
+        image: rajgirDest,
         rating: 4.5,
         avgCost: 7000,
         bestTime: "October to March",
@@ -1115,7 +1134,7 @@ export const indianStates: IndianState[] = [
         id: "deoghar",
         name: "Deoghar",
         description: "One of the 12 Jyotirlingas, important Shiva pilgrimage site.",
-        image: varanasiDest,
+        image: deogharDest,
         rating: 4.5,
         avgCost: 8000,
         bestTime: "July-August (Shravan), October to March",
@@ -1148,7 +1167,7 @@ export const indianStates: IndianState[] = [
         id: "bhopal",
         name: "Bhopal",
         description: "City of Lakes with grand mosques, beautiful lakes, and rich Nawabi heritage.",
-        image: lucknowDest,
+        image: bhopalDest,
         rating: 4.4,
         avgCost: 14000,
         bestTime: "October to March",
@@ -1160,7 +1179,7 @@ export const indianStates: IndianState[] = [
         id: "kanha",
         name: "Kanha National Park",
         description: "Inspiration for Jungle Book, one of India's best tiger reserves.",
-        image: girDest,
+        image: kanhaDest,
         rating: 4.8,
         avgCost: 20000,
         bestTime: "October to June",
@@ -1172,7 +1191,7 @@ export const indianStates: IndianState[] = [
         id: "bandhavgarh",
         name: "Bandhavgarh National Park",
         description: "Highest tiger density in India with ancient Bandhavgarh Fort.",
-        image: sundarbansDest,
+        image: bandhavgarhDest,
         rating: 4.8,
         avgCost: 22000,
         bestTime: "October to June",
@@ -1238,7 +1257,7 @@ export const indianStates: IndianState[] = [
         id: "pelling",
         name: "Pelling",
         description: "Offbeat destination with spectacular Kanchenjunga views and ancient monasteries.",
-        image: gangtokDest,
+        image: pellingDest,
         rating: 4.6,
         avgCost: 18000,
         bestTime: "March to May, October to December",
@@ -1249,7 +1268,7 @@ export const indianStates: IndianState[] = [
         id: "lachung",
         name: "Lachung & Yumthang",
         description: "Gateway to Valley of Flowers with stunning alpine meadows.",
-        image: gangtokDest,
+        image: lachungDest,
         rating: 4.8,
         avgCost: 25000,
         bestTime: "March to June, September to December",
@@ -1314,7 +1333,7 @@ export const indianStates: IndianState[] = [
         id: "guwahati",
         name: "Guwahati",
         description: "Gateway to Northeast with ancient Kamakhya Temple and Brahmaputra River.",
-        image: keralaDest,
+        image: guwahatiDest,
         rating: 4.4,
         avgCost: 14000,
         bestTime: "October to April",
@@ -1325,7 +1344,7 @@ export const indianStates: IndianState[] = [
         id: "kaziranga",
         name: "Kaziranga National Park",
         description: "UNESCO World Heritage Site, home to two-thirds of world's one-horned rhinos.",
-        image: keralaDest,
+        image: kazirangaDest,
         rating: 4.9,
         avgCost: 18000,
         bestTime: "November to April",
@@ -1336,7 +1355,7 @@ export const indianStates: IndianState[] = [
         id: "majuli",
         name: "Majuli Island",
         description: "World's largest river island with unique Vaishnavite monasteries.",
-        image: keralaDest,
+        image: majuliDest,
         rating: 4.5,
         avgCost: 10000,
         bestTime: "October to March",
@@ -1356,7 +1375,7 @@ export const indianStates: IndianState[] = [
         id: "tawang",
         name: "Tawang",
         description: "Buddhist paradise with India's largest monastery and stunning mountain views.",
-        image: ladakhDest,
+        image: tawangDest,
         rating: 4.9,
         avgCost: 30000,
         bestTime: "March to October",
@@ -1367,7 +1386,7 @@ export const indianStates: IndianState[] = [
         id: "ziro-valley",
         name: "Ziro Valley",
         description: "UNESCO World Heritage tentative site, home to Apatani tribe and Ziro Music Festival.",
-        image: keralaDest,
+        image: ziroDest,
         rating: 4.6,
         avgCost: 20000,
         bestTime: "March to October, September (Music Festival)",
@@ -1387,7 +1406,7 @@ export const indianStates: IndianState[] = [
         id: "kohima",
         name: "Kohima",
         description: "Capital city with World War II history and vibrant Hornbill Festival.",
-        image: keralaDest,
+        image: kohimaDest,
         rating: 4.5,
         avgCost: 18000,
         bestTime: "October to May, December (Hornbill Festival)",
@@ -1407,7 +1426,7 @@ export const indianStates: IndianState[] = [
         id: "imphal",
         name: "Imphal",
         description: "Land of jewels with floating island Loktak Lake and rich Manipuri culture.",
-        image: keralaDest,
+        image: imphalDest,
         rating: 4.4,
         avgCost: 16000,
         bestTime: "October to March",
@@ -1427,7 +1446,7 @@ export const indianStates: IndianState[] = [
         id: "agartala",
         name: "Agartala",
         description: "Capital city with Neermahal water palace and rich royal heritage.",
-        image: gangtokDest,
+        image: agartalaDest,
         rating: 4.3,
         avgCost: 12000,
         bestTime: "September to February",
@@ -1447,7 +1466,7 @@ export const indianStates: IndianState[] = [
         id: "aizawl",
         name: "Aizawl",
         description: "Land of the Hill People with colorful markets and scenic mountain views.",
-        image: keralaDest,
+        image: aizawlDest,
         rating: 4.3,
         avgCost: 18000,
         bestTime: "October to March",
