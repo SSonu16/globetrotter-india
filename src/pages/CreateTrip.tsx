@@ -8,11 +8,15 @@ import {
   MapPin,
   X,
   DollarSign,
+  Sparkles,
+  Plane,
+  Building,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTrips } from "@/hooks/useTrips";
@@ -33,6 +37,8 @@ const CreateTrip = () => {
     description: "",
     budget: "",
   });
+  const [autoGenerateItinerary, setAutoGenerateItinerary] = useState(true);
+  const [showBookingOptions, setShowBookingOptions] = useState(true);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -98,9 +104,18 @@ const CreateTrip = () => {
 
     toast({
       title: "Trip Created! 🎉",
-      description: `Your trip "${formData.name}" has been created successfully.`,
+      description: autoGenerateItinerary 
+        ? `Your trip "${formData.name}" has been created. Generating AI itinerary...`
+        : `Your trip "${formData.name}" has been created successfully.`,
     });
-    navigate("/dashboard");
+    
+    // Navigate to trip detail page with flags for auto-generation and booking
+    navigate(`/trips/${data.id}`, { 
+      state: { 
+        autoGenerateItinerary, 
+        showBookingOptions 
+      } 
+    });
   };
 
   if (authLoading) {
@@ -261,17 +276,57 @@ const CreateTrip = () => {
               />
             </div>
 
-            {/* Info Card */}
-            <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10">
+            {/* AI Assistance Options */}
+            <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-6 border border-primary/20 space-y-4">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-5 h-5 text-primary" />
+                  <Sparkles className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-1">What's Next?</h3>
+                  <h3 className="font-semibold text-foreground mb-1">AI Trip Planning</h3>
                   <p className="text-sm text-muted-foreground">
-                    After creating your trip, you'll be able to track your budget,
-                    add activities, and plan your day-by-day itinerary.
+                    Let AI automatically create your itinerary with optimized routes, budget suggestions, and local recommendations.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3 pl-2">
+                <div className="flex items-center space-x-3">
+                  <Checkbox 
+                    id="autoItinerary" 
+                    checked={autoGenerateItinerary}
+                    onCheckedChange={(checked) => setAutoGenerateItinerary(checked as boolean)}
+                  />
+                  <label htmlFor="autoItinerary" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    Auto-generate AI Itinerary
+                  </label>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <Checkbox 
+                    id="showBooking" 
+                    checked={showBookingOptions}
+                    onCheckedChange={(checked) => setShowBookingOptions(checked as boolean)}
+                  />
+                  <label htmlFor="showBooking" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                    <Plane className="w-4 h-4 text-primary" />
+                    Show Flight & Hotel Booking Options
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Info Card */}
+            <div className="bg-secondary/30 rounded-2xl p-6 border border-border">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground mb-1">Pro Tip</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Include the destination name in your trip title (e.g., "Rajasthan Adventure") for better AI suggestions!
                   </p>
                 </div>
               </div>

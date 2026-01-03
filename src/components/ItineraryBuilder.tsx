@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -47,6 +47,8 @@ interface ItineraryBuilderProps {
   budget: number;
   description: string | null;
   tripDuration: number;
+  autoGenerate?: boolean;
+  onAutoGenerateComplete?: () => void;
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -77,6 +79,8 @@ const ItineraryBuilder = ({
   budget,
   description,
   tripDuration,
+  autoGenerate = false,
+  onAutoGenerateComplete,
 }: ItineraryBuilderProps) => {
   const {
     items,
@@ -101,8 +105,19 @@ const ItineraryBuilder = ({
     duration_minutes: 60,
     category: "activity",
   });
+  const [hasTriggeredAutoGenerate, setHasTriggeredAutoGenerate] = useState(false);
 
   const itemsByDay = getItemsByDay();
+
+  // Auto-generate itinerary if requested
+  useEffect(() => {
+    if (autoGenerate && !hasTriggeredAutoGenerate && !loading && !generating && items.length === 0) {
+      setHasTriggeredAutoGenerate(true);
+      handleGenerateAI().then(() => {
+        onAutoGenerateComplete?.();
+      });
+    }
+  }, [autoGenerate, hasTriggeredAutoGenerate, loading, generating, items.length]);
 
   const toggleDay = (day: number) => {
     const newExpanded = new Set(expandedDays);

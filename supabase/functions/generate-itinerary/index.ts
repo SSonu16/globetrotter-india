@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -6,14 +7,17 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log("Generate itinerary function called");
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { tripName, destination, startDate, endDate, budget, description } = await req.json();
+    const body = await req.json();
+    const { tripName, destination, startDate, endDate, budget, description } = body;
     
-    console.log("Received request:", { tripName, destination, startDate, endDate, budget, description });
+    console.log("Request body:", JSON.stringify({ tripName, destination, startDate, endDate, budget, description }));
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -24,26 +28,18 @@ serve(async (req) => {
       });
     }
 
-    // Extract destination hints from trip name and description
-    const tripNameLower = (tripName || '').toLowerCase();
-    const descriptionLower = (description || '').toLowerCase();
-    const combinedText = `${tripName} ${description || ''}`.toLowerCase();
-    
     // Comprehensive list of Indian destinations and states
     const destinations = [
-      // Major cities
       'jaipur', 'delhi', 'mumbai', 'goa', 'kerala', 'varanasi', 'agra', 'udaipur',
       'manali', 'shimla', 'ladakh', 'darjeeling', 'ooty', 'mysore', 'hyderabad',
       'chennai', 'kolkata', 'bengaluru', 'bangalore', 'pune', 'rajasthan', 'kashmir',
       'rishikesh', 'haridwar', 'amritsar', 'jaisalmer', 'jodhpur', 'pushkar',
       'hampi', 'kodaikanal', 'munnar', 'alleppey', 'kovalam', 'kochi', 'cochin',
-      // States
       'andhra pradesh', 'arunachal pradesh', 'assam', 'bihar', 'chhattisgarh',
       'gujarat', 'haryana', 'himachal pradesh', 'jharkhand', 'karnataka',
       'madhya pradesh', 'maharashtra', 'manipur', 'meghalaya', 'mizoram',
       'nagaland', 'odisha', 'punjab', 'sikkim', 'tamil nadu', 'telangana',
       'tripura', 'uttar pradesh', 'uttarakhand', 'west bengal',
-      // Additional places
       'gangtok', 'shillong', 'imphal', 'kohima', 'aizawl', 'agartala', 'itanagar',
       'leh', 'srinagar', 'gulmarg', 'pahalgam', 'nainital', 'mussoorie', 'dehradun',
       'lonavala', 'mahabaleshwar', 'coorg', 'wayanad', 'thekkady', 'pondicherry',
@@ -54,7 +50,9 @@ serve(async (req) => {
       'vadodara', 'surat', 'aurangabad', 'ajanta', 'ellora', 'nashik', 'shirdi'
     ];
     
-    // Try to identify destination from trip name/description
+    // Extract destination from trip name and description
+    const combinedText = `${tripName || ''} ${description || ''}`.toLowerCase();
+    
     let inferredDestination = destination;
     if (!inferredDestination) {
       for (const dest of destinations) {
@@ -64,98 +62,53 @@ serve(async (req) => {
         }
       }
       
-      // If still no destination, try to extract context from description
-      if (!inferredDestination && description) {
-        if (descriptionLower.includes('historical') || descriptionLower.includes('heritage') || descriptionLower.includes('monument')) {
-          inferredDestination = 'Historical places in India (Delhi, Agra, Jaipur Golden Triangle)';
-        } else if (descriptionLower.includes('beach') || descriptionLower.includes('coastal')) {
-          inferredDestination = 'Beach destinations (Goa, Kerala, Andaman)';
-        } else if (descriptionLower.includes('mountain') || descriptionLower.includes('hill') || descriptionLower.includes('trek')) {
-          inferredDestination = 'Hill stations (Shimla, Manali, Darjeeling, Ooty)';
-        } else if (descriptionLower.includes('spiritual') || descriptionLower.includes('temple') || descriptionLower.includes('religious')) {
-          inferredDestination = 'Spiritual destinations (Varanasi, Rishikesh, Haridwar, Tirupati)';
-        } else if (descriptionLower.includes('wildlife') || descriptionLower.includes('safari') || descriptionLower.includes('jungle')) {
-          inferredDestination = 'Wildlife sanctuaries (Ranthambore, Jim Corbett, Kaziranga)';
-        } else if (descriptionLower.includes('adventure') || descriptionLower.includes('thrill')) {
-          inferredDestination = 'Adventure destinations (Rishikesh, Ladakh, Manali)';
-        } else if (descriptionLower.includes('honeymoon') || descriptionLower.includes('romantic')) {
-          inferredDestination = 'Romantic destinations (Udaipur, Kerala, Andaman)';
+      // Fallback based on keywords
+      if (!inferredDestination) {
+        if (combinedText.includes('beach') || combinedText.includes('coastal')) {
+          inferredDestination = 'Goa or Kerala beaches';
+        } else if (combinedText.includes('mountain') || combinedText.includes('hill') || combinedText.includes('trek')) {
+          inferredDestination = 'Shimla, Manali or Darjeeling';
+        } else if (combinedText.includes('spiritual') || combinedText.includes('temple')) {
+          inferredDestination = 'Varanasi or Rishikesh';
+        } else if (combinedText.includes('wildlife') || combinedText.includes('safari')) {
+          inferredDestination = 'Ranthambore or Jim Corbett';
         } else {
-          inferredDestination = tripName || 'Popular destinations in India';
+          inferredDestination = tripName || 'Popular Indian destinations';
         }
       }
     }
 
-    const finalDestination = inferredDestination || tripName || 'Popular destinations in India';
-    const budgetAmount = budget ? `₹${budget}` : 'budget-friendly (minimize costs)';
+    const finalDestination = inferredDestination;
+    const budgetStr = budget ? `₹${budget}` : 'budget-friendly';
     
-    console.log("Generating itinerary for:", { tripName, destination: finalDestination, startDate, endDate, budget: budgetAmount });
+    console.log("Generating itinerary for:", finalDestination, "Budget:", budgetStr);
 
-    const systemPrompt = `You are an expert Indian travel planner specializing in creating detailed, budget-conscious, and efficient travel itineraries.
-    Your expertise includes:
-    - Planning multi-destination trips that cover maximum attractions in minimum time
-    - Suggesting the most cost-effective options for transport, food, and accommodation
-    - Recommending hidden gems and local experiences alongside popular attractions
-    - Optimizing routes to minimize travel time between destinations
-    - Including specific timings, local food recommendations, and money-saving tips
-    
-    Always provide:
-    - Realistic time estimates based on actual travel conditions in India
-    - Costs in Indian Rupees (₹) that reflect current market rates
-    - Practical tips for each location (best time to visit, what to carry, local customs)
-    - Budget-friendly alternatives for expensive attractions
-    - Suggestions for covering multiple nearby attractions efficiently`;
+    const systemPrompt = `You are an expert Indian travel planner. Create detailed, budget-conscious itineraries with:
+- Multiple destinations to visit efficiently
+- Cost-effective transport, food, and stay options  
+- Optimal routes to minimize travel time
+- Local experiences and hidden gems
+- Specific timings and costs in Indian Rupees (₹)`;
 
-    const userPrompt = `Create a comprehensive day-by-day travel itinerary with these requirements:
+    const userPrompt = `Create a day-by-day travel itinerary:
 
-TRIP DETAILS:
-- Trip Name: ${tripName}
-- Destination/Region: ${finalDestination}
-- Description: ${description || 'Explore and experience the best of the region'}
-- Start Date: ${startDate}
-- End Date: ${endDate}
-- Total Budget: ${budgetAmount}
+TRIP: ${tripName}
+DESTINATION: ${finalDestination}  
+DATES: ${startDate} to ${endDate}
+BUDGET: ${budgetStr}
+NOTES: ${description || 'Explore the best of the region'}
 
-IMPORTANT REQUIREMENTS:
-1. MAXIMIZE PLACES: Pack as many attractions and experiences as possible within the time frame
-2. MINIMIZE BUDGET: Suggest the most cost-effective options (budget hotels, local transport, street food)
-3. OPTIMIZE ROUTE: Plan the route to minimize travel time and backtracking
-4. LOCAL EXPERIENCES: Include authentic local food spots, markets, and hidden gems
-5. PRACTICAL TIPS: Add useful tips for each activity
+Requirements:
+1. Pack MAXIMUM attractions in the time available
+2. Use BUDGET options (local transport, street food, budget stays)
+3. Optimize routes to MINIMIZE travel time
+4. Include local food spots and markets
+5. Add 4-6 activities per day with specific times
 
-For each day, provide 4-6 activities with:
-- Specific time slots (e.g., "6:00 AM - 8:00 AM" for early starts to beat crowds)
-- Activity title (be specific, e.g., "Sunrise at Taj Mahal" not just "Visit Taj Mahal")
-- Brief description with tips and what to expect
-- Exact location name
-- Estimated cost in ₹ (including entry fees, transport, food)
-- Duration in minutes
-- Category: sightseeing, food, transport, accommodation, shopping, adventure, cultural
+For each activity include: time, title, description, location, cost (₹), duration (minutes), category (sightseeing/food/transport/accommodation/shopping/adventure/cultural).
 
-Include:
-- Early morning activities to beat crowds and heat
-- Budget meal recommendations (local dhabas, street food spots)
-- Cheapest transport options (local buses, shared autos, metro)
-- Free or low-cost attractions
-- Evening activities and night markets
-
-Return ONLY a valid JSON array in this exact format (no markdown, no explanation):
-[
-  {
-    "day": 1,
-    "activities": [
-      {
-        "time": "6:00 AM",
-        "title": "Activity Title",
-        "description": "Brief description with tips. Pro tip: arrive early to avoid crowds.",
-        "location": "Specific Location Name",
-        "cost": 100,
-        "duration": 120,
-        "category": "sightseeing"
-      }
-    ]
-  }
-]`;
+Return ONLY valid JSON array (no markdown):
+[{"day":1,"activities":[{"time":"6:00 AM","title":"Activity","description":"Details","location":"Place","cost":100,"duration":60,"category":"sightseeing"}]}]`;
 
     console.log("Calling Lovable AI gateway...");
     
@@ -193,44 +146,52 @@ Return ONLY a valid JSON array in this exact format (no markdown, no explanation
         });
       }
       
-      throw new Error(`AI gateway error: ${response.status} - ${errorText}`);
+      return new Response(JSON.stringify({ error: `AI service error: ${response.status}` }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    console.log("AI response received");
     
-    console.log("AI response received, length:", content?.length);
-    console.log("AI response preview:", content?.substring(0, 500));
-
+    const content = data.choices?.[0]?.message?.content;
     if (!content) {
-      throw new Error("No content in AI response");
+      console.error("No content in AI response:", JSON.stringify(data));
+      return new Response(JSON.stringify({ error: "No response from AI" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // Parse the JSON from the response
+    console.log("AI content preview:", content.substring(0, 300));
+
+    // Parse JSON from response
     let itinerary;
     try {
-      // Extract JSON from the response (handle markdown code blocks)
       let jsonString = content;
       
-      // Remove markdown code blocks if present
+      // Remove markdown code blocks
       const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
       if (codeBlockMatch) {
         jsonString = codeBlockMatch[1].trim();
       }
       
-      // Try to find JSON array
+      // Find JSON array
       const jsonMatch = jsonString.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         itinerary = JSON.parse(jsonMatch[0]);
       } else {
-        throw new Error("No valid JSON array found in response");
+        throw new Error("No JSON array found");
       }
       
-      console.log("Parsed itinerary with", itinerary.length, "days");
+      console.log("Parsed itinerary:", itinerary.length, "days");
     } catch (parseError) {
-      console.error("Failed to parse itinerary:", parseError);
-      console.error("Raw content:", content);
-      throw new Error("Failed to parse AI response. Please try again.");
+      console.error("Parse error:", parseError, "Content:", content.substring(0, 500));
+      return new Response(JSON.stringify({ error: "Failed to parse AI response. Please try again." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     return new Response(JSON.stringify({ itinerary }), {
