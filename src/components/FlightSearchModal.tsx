@@ -91,11 +91,23 @@ const FlightSearchModal = ({ isOpen, onClose, destinationAirport }: FlightSearch
   };
 
   const handleBookFlight = (flight: any) => {
+    // Build search URL for popular flight booking sites
+    const fromCity = encodeURIComponent(formData.from);
+    const toCity = encodeURIComponent(destinationAirport.code);
+    const date = formData.departureDate;
+    const passengers = formData.passengers;
+    
+    // Create MakeMyTrip search URL
+    const formattedDate = date.split("-").reverse().join("/"); // Convert YYYY-MM-DD to DD/MM/YYYY
+    const bookingUrl = `https://www.makemytrip.com/flight/search?itinerary=${fromCity}-${toCity}-${formattedDate}&tripType=O&paxType=A-${passengers}_C-0_I-0&intl=false&cabinClass=E`;
+    
     toast({
-      title: "Booking Initiated",
+      title: "Opening Booking Site",
       description: `Redirecting to book ${flight.airline} ${flight.flightNo}...`,
     });
-    // In a real app, this would redirect to a booking page
+    
+    // Open in new tab
+    window.open(bookingUrl, "_blank");
   };
 
   return (
