@@ -1,10 +1,14 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const RATE_LIMIT_REQUESTS = 5;
+const RATE_LIMIT_WINDOW_MS = 3600000; // 1 hour in milliseconds
 
 serve(async (req) => {
   console.log("Generate itinerary function started");
@@ -14,6 +18,74 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.log("No authorization header provided");
+      return new Response(JSON.stringify({ error: "Unauthorized - Please log in to generate itineraries" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Create Supabase client with user's auth
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.log("Authentication failed:", authError?.message);
+      return new Response(JSON.stringify({ error: "Unauthorized - Invalid authentication token" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log("User authenticated:", user.id);
+
+    // Check rate limits - count requests in the last hour
+    const oneHourAgo = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
+    
+    const { count, error: countError } = await supabase
+      .from('ai_usage_logs')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('endpoint', 'generate-itinerary')
+      .gte('created_at', oneHourAgo);
+
+    if (countError) {
+      console.error("Error checking rate limit:", countError);
+      // Continue even if rate limit check fails - don't block legitimate users
+    } else if (count !== null && count >= RATE_LIMIT_REQUESTS) {
+      console.log("Rate limit exceeded for user:", user.id, "Count:", count);
+      return new Response(
+        JSON.stringify({ 
+          error: `Rate limit exceeded. Maximum ${RATE_LIMIT_REQUESTS} itinerary generations per hour. Please try again later.` 
+        }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Rate limit check passed. Current count:", count);
+
+    // Log this request for rate limiting
+    const { error: insertError } = await supabase
+      .from('ai_usage_logs')
+      .insert({
+        user_id: user.id,
+        endpoint: 'generate-itinerary'
+      });
+
+    if (insertError) {
+      console.error("Error logging usage:", insertError);
+      // Continue even if logging fails
+    }
+
     const body = await req.json();
     const { tripName, destination, startDate, endDate, budget, description } = body;
     
