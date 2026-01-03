@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import jaipurDest from "@/assets/destination-jaipur.jpg";
+import logo from "@/assets/logo.jpg";
 
 const TripDetail = () => {
   const { id } = useParams();
@@ -99,7 +100,7 @@ const TripDetail = () => {
               </Button>
             </Link>
             <Link to="/" className="flex items-center gap-2">
-              <Globe className="w-8 h-8 text-primary" />
+              <img src={logo} alt="GlobeTrotter" className="w-10 h-10 rounded-full object-cover" />
               <span className="font-display text-2xl font-bold text-foreground hidden sm:block">
                 GlobeTrotter
               </span>
