@@ -2,26 +2,26 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Globe,
   Search,
   MapPin,
   Star,
   TrendingUp,
   DollarSign,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import jaipurDest from "@/assets/destination-jaipur.jpg";
-import keralaDest from "@/assets/destination-kerala.jpg";
-import varanasiDest from "@/assets/destination-varanasi.jpg";
-import goaDest from "@/assets/destination-goa.jpg";
-import ladakhDest from "@/assets/destination-ladakh.jpg";
-import heroIndia from "@/assets/hero-india.jpg";
 import logo from "@/assets/logo.jpg";
+import { indianStates, getAllPlaces, type TouristPlace } from "@/data/indianDestinations";
+import PlaceDetailModal from "@/components/PlaceDetailModal";
 
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("all");
+  const [expandedStates, setExpandedStates] = useState<string[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<(TouristPlace & { stateName: string }) | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const regions = [
     { id: "all", name: "All India" },
@@ -30,122 +30,54 @@ const Explore = () => {
     { id: "east", name: "East" },
     { id: "west", name: "West" },
     { id: "central", name: "Central" },
+    { id: "northeast", name: "Northeast" },
   ];
 
-  const destinations = [
-    {
-      id: 1,
-      name: "Jaipur",
-      state: "Rajasthan",
-      region: "north",
-      image: jaipurDest,
-      rating: 4.9,
-      avgCost: 18000,
-      popularity: "Very High",
-      costIndex: "Medium",
-    },
-    {
-      id: 2,
-      name: "Kerala Backwaters",
-      state: "Kerala",
-      region: "south",
-      image: keralaDest,
-      rating: 4.8,
-      avgCost: 25000,
-      popularity: "Very High",
-      costIndex: "Medium",
-    },
-    {
-      id: 3,
-      name: "Varanasi",
-      state: "Uttar Pradesh",
-      region: "north",
-      image: varanasiDest,
-      rating: 4.7,
-      avgCost: 12000,
-      popularity: "High",
-      costIndex: "Low",
-    },
-    {
-      id: 4,
-      name: "Goa",
-      state: "Goa",
-      region: "west",
-      image: goaDest,
-      rating: 4.8,
-      avgCost: 20000,
-      popularity: "Very High",
-      costIndex: "Medium",
-    },
-    {
-      id: 5,
-      name: "Ladakh",
-      state: "Ladakh",
-      region: "north",
-      image: ladakhDest,
-      rating: 4.9,
-      avgCost: 45000,
-      popularity: "High",
-      costIndex: "High",
-    },
-    {
-      id: 6,
-      name: "Agra",
-      state: "Uttar Pradesh",
-      region: "north",
-      image: heroIndia,
-      rating: 4.9,
-      avgCost: 10000,
-      popularity: "Very High",
-      costIndex: "Low",
-    },
-    {
-      id: 7,
-      name: "Udaipur",
-      state: "Rajasthan",
-      region: "north",
-      image: jaipurDest,
-      rating: 4.8,
-      avgCost: 22000,
-      popularity: "High",
-      costIndex: "Medium",
-    },
-    {
-      id: 8,
-      name: "Rishikesh",
-      state: "Uttarakhand",
-      region: "north",
-      image: ladakhDest,
-      rating: 4.6,
-      avgCost: 15000,
-      popularity: "High",
-      costIndex: "Low",
-    },
-    {
-      id: 9,
-      name: "Mumbai",
-      state: "Maharashtra",
-      region: "west",
-      image: goaDest,
-      rating: 4.5,
-      avgCost: 25000,
-      popularity: "Very High",
-      costIndex: "High",
-    },
-  ];
+  const toggleState = (stateId: string) => {
+    setExpandedStates((prev) =>
+      prev.includes(stateId)
+        ? prev.filter((id) => id !== stateId)
+        : [...prev, stateId]
+    );
+  };
 
-  const filteredDestinations = destinations.filter((dest) => {
-    const matchesSearch =
-      dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dest.state.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRegion = selectedRegion === "all" || dest.region === selectedRegion;
-    return matchesSearch && matchesRegion;
+  const handlePlaceClick = (place: TouristPlace, stateName: string) => {
+    setSelectedPlace({ ...place, stateName });
+    setIsModalOpen(true);
+  };
+
+  const filteredStates = indianStates.filter((state) => {
+    const matchesRegion = selectedRegion === "all" || state.region === selectedRegion;
+    
+    if (!searchQuery) return matchesRegion;
+    
+    const lowerQuery = searchQuery.toLowerCase();
+    const stateMatches = state.name.toLowerCase().includes(lowerQuery);
+    const placesMatch = state.places.some(
+      (place) =>
+        place.name.toLowerCase().includes(lowerQuery) ||
+        place.description.toLowerCase().includes(lowerQuery)
+    );
+    
+    return matchesRegion && (stateMatches || placesMatch);
   });
+
+  // Filter places within each state based on search
+  const getFilteredPlaces = (state: typeof indianStates[0]) => {
+    if (!searchQuery) return state.places;
+    
+    const lowerQuery = searchQuery.toLowerCase();
+    return state.places.filter(
+      (place) =>
+        place.name.toLowerCase().includes(lowerQuery) ||
+        place.description.toLowerCase().includes(lowerQuery)
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 glass-card border-b border-border">
+      <header className="sticky top-0 z-40 glass-card border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="GlobeTrotter" className="w-10 h-10 rounded-full object-cover" />
@@ -169,7 +101,7 @@ const Explore = () => {
             Explore India
           </h1>
           <p className="text-muted-foreground mb-8">
-            Discover amazing destinations across Incredible India and add them to your trips.
+            Discover amazing destinations across all 28 states and 8 union territories of Incredible India.
           </p>
 
           {/* Search & Filter */}
@@ -177,7 +109,7 @@ const Explore = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
-                placeholder="Search destinations, states..."
+                placeholder="Search states, cities, attractions..."
                 className="pl-10 h-12"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -190,6 +122,7 @@ const Explore = () => {
                   variant={selectedRegion === region.id ? "default" : "outline"}
                   onClick={() => setSelectedRegion(region.id)}
                   className={selectedRegion === region.id ? "btn-gradient" : ""}
+                  size="sm"
                 >
                   {region.name}
                 </Button>
@@ -197,60 +130,119 @@ const Explore = () => {
             </div>
           </div>
 
-          {/* Destinations Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredDestinations.map((dest, index) => (
-              <motion.div
-                key={dest.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                className="bg-card rounded-2xl overflow-hidden border border-border card-hover group cursor-pointer"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={dest.image}
-                    alt={dest.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 right-3 flex items-center gap-1 bg-card/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <Star className="w-3 h-3 text-warning fill-warning" />
-                    <span className="text-sm font-medium">{dest.rating}</span>
-                  </div>
-                </div>
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="font-display text-xl font-semibold text-foreground">
-                        {dest.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {dest.state}
+          {/* States & Places */}
+          <div className="space-y-4">
+            {filteredStates.map((state, stateIndex) => {
+              const isExpanded = expandedStates.includes(state.id);
+              const filteredPlaces = getFilteredPlaces(state);
+              
+              return (
+                <motion.div
+                  key={state.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: stateIndex * 0.05, duration: 0.4 }}
+                  className="bg-card rounded-xl border border-border overflow-hidden"
+                >
+                  {/* State Header */}
+                  <button
+                    onClick={() => toggleState(state.id)}
+                    className="w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors"
+                  >
+                    <img
+                      src={state.image}
+                      alt={state.name}
+                      className="w-16 h-16 rounded-lg object-cover"
+                    />
+                    <div className="flex-1 text-left">
+                      <h2 className="font-display text-xl font-semibold text-foreground">
+                        {state.name}
+                      </h2>
+                      <p className="text-sm text-muted-foreground">
+                        {filteredPlaces.length} tourist destinations • Capital: {state.capital}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground">From</p>
-                      <p className="font-semibold text-primary">₹{dest.avgCost.toLocaleString('en-IN')}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full capitalize">
+                        {state.region}
+                      </span>
+                      {isExpanded ? (
+                        <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                      )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <TrendingUp className="w-3 h-3" />
-                      {dest.popularity}
-                    </span>
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <DollarSign className="w-3 h-3" />
-                      {dest.costIndex}
-                    </span>
-                  </div>
-                  <Button className="w-full mt-4 btn-gradient">Add to Trip</Button>
-                </div>
-              </motion.div>
-            ))}
+                  </button>
+
+                  {/* Places Grid */}
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="border-t border-border"
+                    >
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                        {filteredPlaces.map((place, placeIndex) => (
+                          <motion.div
+                            key={place.id}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: placeIndex * 0.05 }}
+                            onClick={() => handlePlaceClick(place, state.name)}
+                            className="bg-muted/50 rounded-xl overflow-hidden border border-border/50 card-hover cursor-pointer group"
+                          >
+                            <div className="relative h-32 overflow-hidden">
+                              <img
+                                src={place.image}
+                                alt={place.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                              <div className="absolute top-2 right-2 flex items-center gap-1 bg-card/90 backdrop-blur-sm px-2 py-0.5 rounded-full">
+                                <Star className="w-3 h-3 text-warning fill-warning" />
+                                <span className="text-xs font-medium">{place.rating}</span>
+                              </div>
+                            </div>
+                            <div className="p-3">
+                              <h3 className="font-semibold text-foreground mb-1 line-clamp-1">
+                                {place.name}
+                              </h3>
+                              <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                                {place.description}
+                              </p>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">
+                                  {place.bestTime}
+                                </span>
+                                <span className="text-sm font-semibold text-primary">
+                                  ₹{place.avgCost.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
+
+          {filteredStates.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No destinations found matching your search.</p>
+            </div>
+          )}
         </motion.div>
       </main>
+
+      {/* Place Detail Modal */}
+      <PlaceDetailModal
+        place={selectedPlace}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };
