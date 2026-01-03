@@ -1,24 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Globe,
   ArrowLeft,
   Calendar,
   Upload,
   MapPin,
   X,
+  DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTrips } from "@/hooks/useTrips";
 import logo from "@/assets/logo.jpg";
 
 const CreateTrip = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
+  const { createTrip } = useTrips();
   const [loading, setLoading] = useState(false);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
@@ -27,7 +31,15 @@ const CreateTrip = () => {
     startDate: "",
     endDate: "",
     description: "",
+    budget: "",
   });
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -64,16 +76,40 @@ const CreateTrip = () => {
       return;
     }
 
-    // Simulate API call
-    setTimeout(() => {
+    const { error, data } = await createTrip({
+      name: formData.name,
+      description: formData.description || undefined,
+      start_date: formData.startDate,
+      end_date: formData.endDate,
+      budget: formData.budget ? parseFloat(formData.budget) : 0,
+      cover_url: coverPreview || undefined,
+    });
+
+    setLoading(false);
+
+    if (error) {
       toast({
-        title: "Trip Created! 🎉",
-        description: `Your trip "${formData.name}" has been created successfully.`,
+        title: "Error",
+        description: "Failed to create trip. Please try again.",
+        variant: "destructive",
       });
-      setLoading(false);
-      navigate("/dashboard");
-    }, 1000);
+      return;
+    }
+
+    toast({
+      title: "Trip Created! 🎉",
+      description: `Your trip "${formData.name}" has been created successfully.`,
+    });
+    navigate("/dashboard");
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -156,7 +192,7 @@ const CreateTrip = () => {
               </Label>
               <Input
                 id="name"
-                placeholder="e.g., European Summer Adventure"
+                placeholder="e.g., Rajasthan Royal Tour"
                 className="h-12"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -197,6 +233,22 @@ const CreateTrip = () => {
               </div>
             </div>
 
+            {/* Budget */}
+            <div className="space-y-2">
+              <Label htmlFor="budget">Budget (Optional)</Label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="budget"
+                  type="number"
+                  placeholder="e.g., 50000"
+                  className="pl-10 h-12"
+                  value={formData.budget}
+                  onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                />
+              </div>
+            </div>
+
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Description (Optional)</Label>
@@ -218,8 +270,8 @@ const CreateTrip = () => {
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">What's Next?</h3>
                   <p className="text-sm text-muted-foreground">
-                    After creating your trip, you'll be able to add cities, build your day-by-day
-                    itinerary, track your budget, and add activities for each destination.
+                    After creating your trip, you'll be able to track your budget,
+                    add activities, and plan your day-by-day itinerary.
                   </p>
                 </div>
               </div>

@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Globe,
   ArrowLeft,
   User,
   Mail,
@@ -20,37 +19,82 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import logo from "@/assets/logo.jpg";
 import { useToast } from "@/hooks/use-toast";
-import jaipurDest from "@/assets/destination-jaipur.jpg";
-import keralaDest from "@/assets/destination-kerala.jpg";
-import ladakhDest from "@/assets/destination-ladakh.jpg";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTrips } from "@/hooks/useTrips";
+import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 
 const Profile = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user, profile, loading: authLoading, signOut, updateProfile } = useAuth();
+  const { trips } = useTrips();
+  const { savedDestinations, removeDestination } = useSavedDestinations();
   const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [userData, setUserData] = useState({
-    name: "Rahul Sharma",
-    email: "rahul@example.com",
+    name: "",
+    email: "",
   });
 
-  const savedDestinations = [
-    { name: "Jaipur", state: "Rajasthan", image: jaipurDest },
-    { name: "Kerala", state: "God's Own Country", image: keralaDest },
-    { name: "Ladakh", state: "Adventure Paradise", image: ladakhDest },
-  ];
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
-  const stats = [
-    { label: "Trips Planned", value: 5 },
-    { label: "Cities Visited", value: 18 },
-    { label: "States", value: 12 },
-  ];
+  // Sync profile data
+  useEffect(() => {
+    if (profile && user) {
+      setUserData({
+        name: profile.full_name || "",
+        email: user.email || "",
+      });
+    }
+  }, [profile, user]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaving(true);
+    const { error } = await updateProfile({ full_name: userData.name });
+    setSaving(false);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsEditing(false);
     toast({
       title: "Profile Updated",
       description: "Your profile has been updated successfully.",
     });
   };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const handleRemoveDestination = async (id: string) => {
+    await removeDestination(id);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  const stats = [
+    { label: "Trips Planned", value: trips.length },
+    { label: "Saved Places", value: savedDestinations.length },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,13 +154,14 @@ const Profile = () => {
                         id="email"
                         type="email"
                         value={userData.email}
-                        onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-                        className="h-12"
+                        disabled
+                        className="h-12 opacity-50"
                       />
+                      <p className="text-xs text-muted-foreground">Email cannot be changed</p>
                     </div>
                     <div className="flex gap-3">
-                      <Button onClick={handleSave} className="btn-gradient">
-                        Save Changes
+                      <Button onClick={handleSave} className="btn-gradient" disabled={saving}>
+                        {saving ? "Saving..." : "Save Changes"}
                       </Button>
                       <Button variant="outline" onClick={() => setIsEditing(false)}>
                         Cancel
@@ -126,11 +171,11 @@ const Profile = () => {
                 ) : (
                   <>
                     <h1 className="font-display text-3xl font-bold text-foreground mb-1">
-                      {userData.name}
+                      {profile?.full_name || "Traveler"}
                     </h1>
                     <p className="text-muted-foreground flex items-center justify-center md:justify-start gap-2 mb-4">
                       <Mail className="w-4 h-4" />
-                      {userData.email}
+                      {user?.email}
                     </p>
                     <Button variant="outline" onClick={() => setIsEditing(true)}>
                       <Edit className="w-4 h-4 mr-2" />
@@ -166,31 +211,54 @@ const Profile = () => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {savedDestinations.map((dest) => (
-                <div
-                  key={dest.name}
-                  className="relative group rounded-2xl overflow-hidden"
-                >
-                  <img
-                    src={dest.image}
-                    alt={dest.name}
-                    className="w-full h-32 object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 to-transparent" />
-                  <div className="absolute bottom-3 left-3">
-                    <p className="font-semibold text-primary-foreground">{dest.name}</p>
-                    <p className="text-sm text-primary-foreground/80 flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {dest.state}
-                    </p>
-                  </div>
-                  <button className="absolute top-2 right-2 w-8 h-8 bg-destructive/80 rounded-full flex items-center justify-center text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+            {savedDestinations.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                  <Heart className="w-8 h-8 text-muted-foreground" />
                 </div>
-              ))}
-            </div>
+                <p className="text-muted-foreground mb-4">No saved destinations yet</p>
+                <Link to="/explore">
+                  <Button variant="outline">Explore Destinations</Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {savedDestinations.map((dest) => (
+                  <div
+                    key={dest.id}
+                    className="relative group rounded-2xl overflow-hidden"
+                  >
+                    {dest.destination_image ? (
+                      <img
+                        src={dest.destination_image}
+                        alt={dest.destination_name}
+                        className="w-full h-32 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-32 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                        <MapPin className="w-8 h-8 text-primary/50" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 to-transparent" />
+                    <div className="absolute bottom-3 left-3">
+                      <p className="font-semibold text-primary-foreground">{dest.destination_name}</p>
+                      {dest.state_name && (
+                        <p className="text-sm text-primary-foreground/80 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {dest.state_name}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleRemoveDestination(dest.id)}
+                      className="absolute top-2 right-2 w-8 h-8 bg-destructive/80 rounded-full flex items-center justify-center text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Settings */}
@@ -236,7 +304,7 @@ const Profile = () => {
               These actions are permanent and cannot be undone.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button variant="outline" className="text-muted-foreground">
+              <Button variant="outline" className="text-muted-foreground" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>

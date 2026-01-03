@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Globe,
   Plus,
   MapPin,
   Calendar,
@@ -20,6 +19,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.jpg";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTrips } from "@/hooks/useTrips";
+import { format, differenceInDays, parseISO } from "date-fns";
 import jaipurDest from "@/assets/destination-jaipur.jpg";
 import keralaDest from "@/assets/destination-kerala.jpg";
 import goaDest from "@/assets/destination-goa.jpg";
@@ -27,33 +29,29 @@ import varanasiDest from "@/assets/destination-varanasi.jpg";
 import ladakhDest from "@/assets/destination-ladakh.jpg";
 
 const Dashboard = () => {
-  const [userName] = useState("Traveler");
+  const navigate = useNavigate();
+  const { user, profile, loading: authLoading } = useAuth();
+  const { trips, loading: tripsLoading } = useTrips();
 
-  // Mock data for trips - Indian destinations
-  const upcomingTrips = [
-    {
-      id: 1,
-      name: "Rajasthan Royal Tour",
-      startDate: "Mar 15, 2025",
-      endDate: "Mar 25, 2025",
-      cities: ["Jaipur", "Udaipur", "Jodhpur"],
-      budget: 45000,
-      spent: 18000,
-      image: jaipurDest,
-      daysLeft: 72,
-    },
-    {
-      id: 2,
-      name: "Kerala Backwaters Escape",
-      startDate: "Apr 10, 2025",
-      endDate: "Apr 18, 2025",
-      cities: ["Kochi", "Alleppey", "Munnar"],
-      budget: 35000,
-      spent: 12000,
-      image: keralaDest,
-      daysLeft: 98,
-    },
-  ];
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading || tripsLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  const userName = profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "Traveler";
+
+  // Filter upcoming trips
+  const upcomingTrips = trips.filter(trip => new Date(trip.start_date) >= new Date());
 
   const popularDestinations = [
     { name: "Goa", state: "Beaches & Nightlife", image: goaDest, avgCost: 15000 },
@@ -61,15 +59,9 @@ const Dashboard = () => {
     { name: "Ladakh", state: "Adventure Paradise", image: ladakhDest, avgCost: 35000 },
   ];
 
-  const recentActivity = [
-    { type: "added", item: "Hawa Mahal Visit", trip: "Rajasthan Royal Tour", time: "2 hours ago" },
-    { type: "budget", item: "Updated budget", trip: "Kerala Backwaters Escape", time: "5 hours ago" },
-    { type: "city", item: "Added Jodhpur", trip: "Rajasthan Royal Tour", time: "1 day ago" },
-  ];
-
   const budgetStats = {
-    totalPlanned: 80000,
-    totalSpent: 30000,
+    totalPlanned: trips.reduce((acc, t) => acc + Number(t.budget), 0) || 80000,
+    totalSpent: trips.reduce((acc, t) => acc + Number(t.spent), 0) || 0,
     avgPerDay: 2500,
   };
 
@@ -145,15 +137,15 @@ const Dashboard = () => {
           {[
             {
               icon: Plane,
-              label: "Upcoming Trips",
-              value: upcomingTrips.length,
+              label: "Total Trips",
+              value: trips.length,
               color: "text-primary",
               bg: "bg-primary/10",
             },
             {
               icon: MapPin,
-              label: "Cities to Visit",
-              value: upcomingTrips.reduce((acc, t) => acc + t.cities.length, 0),
+              label: "Upcoming Trips",
+              value: upcomingTrips.length,
               color: "text-success",
               bg: "bg-success/10",
             },
@@ -166,8 +158,8 @@ const Dashboard = () => {
             },
             {
               icon: TrendingUp,
-              label: "Avg. Per Day",
-              value: `₹${budgetStats.avgPerDay.toLocaleString('en-IN')}`,
+              label: "Total Spent",
+              value: `₹${budgetStats.totalSpent.toLocaleString('en-IN')}`,
               color: "text-warning",
               bg: "bg-warning/10",
             },
@@ -198,53 +190,83 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {upcomingTrips.map((trip) => (
-              <Link key={trip.id} to={`/trips/${trip.id}`}>
-                <div className="bg-card rounded-3xl overflow-hidden border border-border card-hover group">
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={trip.image}
-                      alt={trip.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <h3 className="font-display text-xl font-bold text-primary-foreground mb-1">
-                        {trip.name}
-                      </h3>
-                      <div className="flex items-center gap-2 text-primary-foreground/80 text-sm">
-                        <Calendar className="w-4 h-4" />
-                        {trip.startDate} - {trip.endDate}
-                      </div>
-                    </div>
-                    <div className="absolute top-4 right-4">
-                      <span className="bg-accent/90 text-accent-foreground px-3 py-1 rounded-full text-sm font-medium">
-                        {trip.daysLeft} days left
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <MapPin className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-muted-foreground text-sm">
-                        {trip.cities.join(" → ")}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Budget progress</span>
-                        <span className="font-semibold text-foreground">
-                          ₹{trip.spent.toLocaleString('en-IN')} / ₹{trip.budget.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                      <Progress value={(trip.spent / trip.budget) * 100} className="h-2" />
-                    </div>
-                  </div>
-                </div>
+          {upcomingTrips.length === 0 ? (
+            <div className="bg-card rounded-3xl p-12 border border-border text-center">
+              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                <Plane className="w-10 h-10 text-muted-foreground" />
+              </div>
+              <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+                No upcoming trips yet
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Start planning your next adventure!
+              </p>
+              <Link to="/trips/new">
+                <Button className="btn-gradient">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Plan Your First Trip
+                </Button>
               </Link>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {upcomingTrips.slice(0, 4).map((trip) => {
+                const daysLeft = differenceInDays(parseISO(trip.start_date), new Date());
+                const budgetProgress = trip.budget > 0 ? (Number(trip.spent) / Number(trip.budget)) * 100 : 0;
+
+                return (
+                  <Link key={trip.id} to={`/trips/${trip.id}`}>
+                    <div className="bg-card rounded-3xl overflow-hidden border border-border card-hover group">
+                      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
+                        {trip.cover_url ? (
+                          <img
+                            src={trip.cover_url}
+                            alt={trip.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Plane className="w-16 h-16 text-primary/30" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <h3 className="font-display text-xl font-bold text-primary-foreground mb-1">
+                            {trip.name}
+                          </h3>
+                          <div className="flex items-center gap-2 text-primary-foreground/80 text-sm">
+                            <Calendar className="w-4 h-4" />
+                            {format(parseISO(trip.start_date), "MMM d")} - {format(parseISO(trip.end_date), "MMM d, yyyy")}
+                          </div>
+                        </div>
+                        <div className="absolute top-4 right-4">
+                          <span className="bg-accent/90 text-accent-foreground px-3 py-1 rounded-full text-sm font-medium">
+                            {daysLeft > 0 ? `${daysLeft} days left` : "Starting soon!"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-6">
+                        {trip.description && (
+                          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                            {trip.description}
+                          </p>
+                        )}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Budget progress</span>
+                            <span className="font-semibold text-foreground">
+                              ₹{Number(trip.spent).toLocaleString('en-IN')} / ₹{Number(trip.budget).toLocaleString('en-IN')}
+                            </span>
+                          </div>
+                          <Progress value={budgetProgress} className="h-2" />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </motion.section>
 
         {/* Budget Overview */}
@@ -281,14 +303,14 @@ const Dashboard = () => {
                     stroke="currentColor"
                     strokeWidth="12"
                     fill="none"
-                    strokeDasharray={`${(budgetStats.totalSpent / budgetStats.totalPlanned) * 352} 352`}
+                    strokeDasharray={`${budgetStats.totalPlanned > 0 ? (budgetStats.totalSpent / budgetStats.totalPlanned) * 352 : 0} 352`}
                     className="text-primary"
                     strokeLinecap="round"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="font-display text-xl font-bold text-foreground">
-                    {Math.round((budgetStats.totalSpent / budgetStats.totalPlanned) * 100)}%
+                    {budgetStats.totalPlanned > 0 ? Math.round((budgetStats.totalSpent / budgetStats.totalPlanned) * 100) : 0}%
                   </span>
                 </div>
               </div>
@@ -322,7 +344,7 @@ const Dashboard = () => {
                     <TrendingUp className="w-4 h-4 text-success" />
                   </div>
                   <p className="text-sm text-foreground">
-                    You're 20% under budget for Rajasthan Tour. Great job!
+                    Track your expenses to stay within budget!
                   </p>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-warning/10 rounded-xl">
@@ -353,72 +375,29 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {popularDestinations.map((dest) => (
-              <div
-                key={dest.name}
-                className="bg-card rounded-2xl overflow-hidden border border-border card-hover group cursor-pointer"
-              >
-                <div className="relative h-40 overflow-hidden">
-                  <img
-                    src={dest.image}
-                    alt={dest.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-foreground">{dest.name}</h3>
-                      <p className="text-sm text-muted-foreground">{dest.state}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground">From</p>
-                      <p className="font-semibold text-primary">₹{dest.avgCost.toLocaleString('en-IN')}</p>
+              <Link key={dest.name} to="/explore">
+                <div className="bg-card rounded-2xl overflow-hidden border border-border card-hover group cursor-pointer">
+                  <div className="relative h-40 overflow-hidden">
+                    <img
+                      src={dest.image}
+                      alt={dest.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-foreground">{dest.name}</h3>
+                        <p className="text-sm text-muted-foreground">{dest.state}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">From</p>
+                        <p className="font-semibold text-primary">₹{dest.avgCost.toLocaleString('en-IN')}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* Recent Activity */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="bg-card rounded-3xl p-8 border border-border"
-        >
-          <h2 className="font-display text-2xl font-bold text-foreground mb-6">Recent Activity</h2>
-
-          <div className="space-y-4">
-            {recentActivity.map((activity, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-4 p-4 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors"
-              >
-                <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    activity.type === "added"
-                      ? "bg-success/10"
-                      : activity.type === "budget"
-                      ? "bg-warning/10"
-                      : "bg-primary/10"
-                  }`}
-                >
-                  {activity.type === "added" ? (
-                    <Camera className="w-5 h-5 text-success" />
-                  ) : activity.type === "budget" ? (
-                    <DollarSign className="w-5 h-5 text-warning" />
-                  ) : (
-                    <MapPin className="w-5 h-5 text-primary" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">{activity.item}</p>
-                  <p className="text-sm text-muted-foreground">{activity.trip}</p>
-                </div>
-                <span className="text-sm text-muted-foreground">{activity.time}</span>
-              </div>
+              </Link>
             ))}
           </div>
         </motion.section>

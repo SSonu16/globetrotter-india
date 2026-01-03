@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Globe,
   Plus,
   Search,
   Filter,
@@ -13,6 +12,7 @@ import {
   Trash2,
   Share2,
   Eye,
+  Plane,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,42 +24,48 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import jaipurDest from "@/assets/destination-jaipur.jpg";
-import keralaDest from "@/assets/destination-kerala.jpg";
-import goaDest from "@/assets/destination-goa.jpg";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTrips } from "@/hooks/useTrips";
+import { useToast } from "@/hooks/use-toast";
+import { format, parseISO, isPast } from "date-fns";
 
 const TripList = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { trips, loading: tripsLoading, deleteTrip } = useTrips();
+  const { toast } = useToast();
 
-  const trips = [
-    {
-      id: 1,
-      name: "Rajasthan Royal Tour",
-      startDate: "Mar 15, 2025",
-      endDate: "Mar 25, 2025",
-      cities: ["Jaipur", "Udaipur", "Jodhpur"],
-      status: "upcoming",
-      image: jaipurDest,
-    },
-    {
-      id: 2,
-      name: "Kerala Backwaters Escape",
-      startDate: "Apr 10, 2025",
-      endDate: "Apr 18, 2025",
-      cities: ["Kochi", "Alleppey", "Munnar"],
-      status: "upcoming",
-      image: keralaDest,
-    },
-    {
-      id: 3,
-      name: "Goa Beach Holiday",
-      startDate: "Jan 5, 2025",
-      endDate: "Jan 12, 2025",
-      cities: ["North Goa", "South Goa", "Panjim"],
-      status: "completed",
-      image: goaDest,
-    },
-  ];
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
+  const handleDeleteTrip = async (tripId: string, tripName: string) => {
+    const { error } = await deleteTrip(tripId);
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete trip.",
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({
+      title: "Trip Deleted",
+      description: `"${tripName}" has been deleted.`,
+    });
+  };
+
+  if (authLoading || tripsLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const filteredTrips = trips.filter((trip) =>
     trip.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -142,95 +148,106 @@ const TripList = () => {
                 </Link>
               </div>
             ) : (
-              filteredTrips.map((trip, index) => (
-                <motion.div
-                  key={trip.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="bg-card rounded-2xl border border-border overflow-hidden card-hover"
-                >
-                  <div className="flex flex-col sm:flex-row">
-                    {/* Image */}
-                    <div className="sm:w-48 h-40 sm:h-auto overflow-hidden">
-                      <img
-                        src={trip.image}
-                        alt={trip.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+              filteredTrips.map((trip, index) => {
+                const isCompleted = isPast(parseISO(trip.end_date));
+                
+                return (
+                  <motion.div
+                    key={trip.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.6 }}
+                    className="bg-card rounded-2xl border border-border overflow-hidden card-hover"
+                  >
+                    <div className="flex flex-col sm:flex-row">
+                      {/* Image */}
+                      <div className="sm:w-48 h-40 sm:h-auto overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
+                        {trip.cover_url ? (
+                          <img
+                            src={trip.cover_url}
+                            alt={trip.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Plane className="w-12 h-12 text-primary/30" />
+                          </div>
+                        )}
+                      </div>
 
-                    {/* Content */}
-                    <div className="flex-1 p-6">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-display text-xl font-semibold text-foreground">
-                              {trip.name}
-                            </h3>
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                trip.status === "upcoming"
-                                  ? "bg-primary/10 text-primary"
-                                  : "bg-muted text-muted-foreground"
-                              }`}
-                            >
-                              {trip.status === "upcoming" ? "Upcoming" : "Completed"}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              {trip.startDate} - {trip.endDate}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-4 h-4" />
-                              {trip.cities.length} cities
-                            </span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {trip.cities.map((city) => (
+                      {/* Content */}
+                      <div className="flex-1 p-6">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-display text-xl font-semibold text-foreground">
+                                {trip.name}
+                              </h3>
                               <span
-                                key={city}
-                                className="px-3 py-1 bg-secondary rounded-full text-sm text-secondary-foreground"
+                                className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  isCompleted
+                                    ? "bg-muted text-muted-foreground"
+                                    : "bg-primary/10 text-primary"
+                                }`}
                               >
-                                {city}
+                                {isCompleted ? "Completed" : "Upcoming"}
                               </span>
-                            ))}
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {format(parseISO(trip.start_date), "MMM d")} - {format(parseISO(trip.end_date), "MMM d, yyyy")}
+                              </span>
+                              {trip.budget > 0 && (
+                                <span className="flex items-center gap-1">
+                                  Budget: ₹{Number(trip.budget).toLocaleString('en-IN')}
+                                </span>
+                              )}
+                            </div>
+                            {trip.description && (
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                {trip.description}
+                              </p>
+                            )}
                           </div>
-                        </div>
 
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="w-5 h-5" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Eye className="w-4 h-4 mr-2" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Edit className="w-4 h-4 mr-2" />
-                              Edit Trip
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Share2 className="w-4 h-4 mr-2" />
-                              Share Trip
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete Trip
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreVertical className="w-5 h-5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem asChild>
+                                <Link to={`/trips/${trip.id}`}>
+                                  <Eye className="w-4 h-4 mr-2" />
+                                  View Details
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit Trip
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Share2 className="w-4 h-4 mr-2" />
+                                Share Trip
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className="text-destructive"
+                                onClick={() => handleDeleteTrip(trip.id, trip.name)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete Trip
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))
+                  </motion.div>
+                );
+              })
             )}
           </div>
         </motion.div>
