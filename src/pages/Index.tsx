@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Globe, MapPin, Calendar, DollarSign, Users, Star, ArrowRight, Plane } from "lucide-react";
+import { Globe, MapPin, Calendar, DollarSign, Users, Star, ArrowRight, Plane, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import FeatureDetailModal from "@/components/FeatureDetailModal";
 import heroImage from "@/assets/hero-india.jpg";
@@ -12,7 +13,15 @@ import logo from "@/assets/logo.jpg";
 
 const Index = () => {
   const [selectedFeature, setSelectedFeature] = useState<typeof features[0] | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/explore?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   const features = [
     {
@@ -158,6 +167,23 @@ const Index = () => {
                 From the Himalayas to Kerala backwaters, plan your perfect Indian adventure. 
                 GlobeTrotter makes exploring India effortless and exciting.
               </p>
+              {/* Search Bar */}
+              <form onSubmit={handleSearch} className="flex gap-2 mb-6 max-w-md">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search destinations..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 py-6 text-lg bg-background/80 backdrop-blur-sm"
+                  />
+                </div>
+                <Button type="submit" size="lg" className="btn-gradient px-6">
+                  Search
+                </Button>
+              </form>
+              
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/auth?mode=signup">
                   <Button size="lg" className="btn-gradient text-lg px-8 py-6 w-full sm:w-auto">
