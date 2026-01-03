@@ -10,6 +10,7 @@ import CreateTrip from "./pages/CreateTrip";
 import TripList from "./pages/TripList";
 import TripDetail from "./pages/TripDetail";
 import Explore from "./pages/Explore";
+import PlaceDetail from "./pages/PlaceDetail";
 import Profile from "./pages/Profile";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/trips/new" element={<CreateTrip />} />
           <Route path="/trips/:id" element={<TripDetail />} />
           <Route path="/explore" element={<Explore />} />
+          <Route path="/explore/:stateId/:placeId" element={<PlaceDetail />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/features" element={<Features />} />
           <Route path="/pricing" element={<Pricing />} />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -14,14 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.jpg";
 import { indianStates, getAllPlaces, type TouristPlace } from "@/data/indianDestinations";
-import PlaceDetailModal from "@/components/PlaceDetailModal";
 
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [expandedStates, setExpandedStates] = useState<string[]>([]);
-  const [selectedPlace, setSelectedPlace] = useState<(TouristPlace & { stateName: string }) | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const regions = [
     { id: "all", name: "All India" },
@@ -41,9 +39,8 @@ const Explore = () => {
     );
   };
 
-  const handlePlaceClick = (place: TouristPlace, stateName: string) => {
-    setSelectedPlace({ ...place, stateName });
-    setIsModalOpen(true);
+  const handlePlaceClick = (stateId: string, placeId: string) => {
+    navigate(`/explore/${stateId}/${placeId}`);
   };
 
   const filteredStates = indianStates.filter((state) => {
@@ -189,7 +186,7 @@ const Explore = () => {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: placeIndex * 0.05 }}
-                            onClick={() => handlePlaceClick(place, state.name)}
+                            onClick={() => handlePlaceClick(state.id, place.id)}
                             className="bg-muted/50 rounded-xl overflow-hidden border border-border/50 card-hover cursor-pointer group"
                           >
                             <div className="relative h-32 overflow-hidden">
@@ -237,12 +234,6 @@ const Explore = () => {
         </motion.div>
       </main>
 
-      {/* Place Detail Modal */}
-      <PlaceDetailModal
-        place={selectedPlace}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </div>
   );
 };
