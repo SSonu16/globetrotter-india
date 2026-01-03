@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Globe, MapPin, Calendar, DollarSign, Users, Star, ArrowRight, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FeatureDetailModal from "@/components/FeatureDetailModal";
-import DestinationDetailModal from "@/components/DestinationDetailModal";
 import heroImage from "@/assets/hero-india.jpg";
 import jaipurDest from "@/assets/destination-jaipur.jpg";
 import keralaDest from "@/assets/destination-kerala.jpg";
@@ -13,7 +12,7 @@ import logo from "@/assets/logo.jpg";
 
 const Index = () => {
   const [selectedFeature, setSelectedFeature] = useState<typeof features[0] | null>(null);
-  const [selectedDestination, setSelectedDestination] = useState<typeof destinations[0] | null>(null);
+  const navigate = useNavigate();
 
   const features = [
     {
@@ -69,50 +68,33 @@ const Index = () => {
   const destinations = [
     { 
       name: "Jaipur", 
-      state: "Rajasthan", 
+      state: "Rajasthan",
+      stateId: "rajasthan",
+      placeId: "jaipur",
       image: jaipurDest, 
       rating: 4.9,
-      description: "The Pink City of India, Jaipur is a vibrant blend of ancient royal heritage and colorful culture. Explore magnificent forts, stunning palaces, and bustling bazaars filled with traditional crafts.",
-      bestTimeToVisit: "Oct - Mar",
-      avgCost: "₹3,000 - ₹5,000",
-      highlights: ["Amber Fort", "Hawa Mahal", "City Palace", "Jantar Mantar", "Nahargarh Fort"],
-      hotels: [
-        { name: "Hotel Pearl Palace", rating: 4.5, pricePerNight: 1800, amenities: ["Free WiFi", "AC", "Breakfast"], distance: "1.2 km" },
-        { name: "Zostel Jaipur", rating: 4.3, pricePerNight: 800, amenities: ["Free WiFi", "Cafe", "Tours"], distance: "2.5 km" },
-        { name: "Hotel Arya Niwas", rating: 4.4, pricePerNight: 2200, amenities: ["Pool", "Restaurant", "Parking"], distance: "0.8 km" },
-      ]
     },
     { 
       name: "Kerala", 
-      state: "God's Own Country", 
+      state: "God's Own Country",
+      stateId: "kerala",
+      placeId: "alleppey",
       image: keralaDest, 
       rating: 4.8,
-      description: "Experience the serene backwaters, lush tea plantations, and pristine beaches of Kerala. Known for Ayurvedic treatments and delicious cuisine, it's a paradise for nature lovers.",
-      bestTimeToVisit: "Sep - Mar",
-      avgCost: "₹4,000 - ₹6,000",
-      highlights: ["Alleppey Backwaters", "Munnar Hills", "Kovalam Beach", "Fort Kochi", "Periyar Wildlife"],
-      hotels: [
-        { name: "Vedanta Wake Up", rating: 4.2, pricePerNight: 1500, amenities: ["Free WiFi", "AC", "Restaurant"], distance: "1.5 km" },
-        { name: "Zostel Alleppey", rating: 4.4, pricePerNight: 900, amenities: ["Backwater View", "Cafe", "Tours"], distance: "0.5 km" },
-        { name: "Green Palace Kerala", rating: 4.3, pricePerNight: 2000, amenities: ["Ayurveda Spa", "Pool", "Breakfast"], distance: "2.0 km" },
-      ]
     },
     { 
       name: "Varanasi", 
-      state: "Uttar Pradesh", 
+      state: "Uttar Pradesh",
+      stateId: "uttar-pradesh",
+      placeId: "varanasi",
       image: varanasiDest, 
       rating: 4.7,
-      description: "One of the world's oldest living cities, Varanasi is the spiritual capital of India. Witness the mesmerizing Ganga Aarti, explore ancient temples, and experience profound spirituality.",
-      bestTimeToVisit: "Oct - Mar",
-      avgCost: "₹2,000 - ₹4,000",
-      highlights: ["Dashashwamedh Ghat", "Kashi Vishwanath Temple", "Sarnath", "Boat Ride at Dawn", "Assi Ghat"],
-      hotels: [
-        { name: "Stops Hostel Varanasi", rating: 4.3, pricePerNight: 700, amenities: ["Free WiFi", "Rooftop", "Tours"], distance: "0.3 km" },
-        { name: "Hotel Ganges View", rating: 4.5, pricePerNight: 2500, amenities: ["River View", "Restaurant", "AC"], distance: "0.2 km" },
-        { name: "BrijRama Palace", rating: 4.6, pricePerNight: 3500, amenities: ["Heritage", "Spa", "Fine Dining"], distance: "0.1 km" },
-      ]
     },
   ];
+
+  const handleDestinationClick = (stateId: string, placeId: string) => {
+    navigate(`/explore/${stateId}/${placeId}`);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -291,7 +273,7 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
-                onClick={() => setSelectedDestination(dest)}
+                onClick={() => handleDestinationClick(dest.stateId, dest.placeId)}
               >
                 <div className="aspect-[4/5] overflow-hidden">
                   <img
@@ -376,13 +358,6 @@ const Index = () => {
         feature={selectedFeature}
         isOpen={!!selectedFeature}
         onClose={() => setSelectedFeature(null)}
-      />
-
-      {/* Destination Detail Modal */}
-      <DestinationDetailModal
-        destination={selectedDestination}
-        isOpen={!!selectedDestination}
-        onClose={() => setSelectedDestination(null)}
       />
     </div>
   );

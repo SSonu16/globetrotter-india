@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -18,10 +19,15 @@ import {
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.jpg";
 import { indianStates, type TouristPlace, type Hotel } from "@/data/indianDestinations";
+import FlightSearchModal from "@/components/FlightSearchModal";
+import HotelBookingModal from "@/components/HotelBookingModal";
 
 const PlaceDetail = () => {
   const { stateId, placeId } = useParams();
   const navigate = useNavigate();
+  const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
+  const [isHotelModalOpen, setIsHotelModalOpen] = useState(false);
+  const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
 
   // Find the state and place
   const state = indianStates.find((s) => s.id === stateId);
@@ -92,6 +98,11 @@ const PlaceDetail = () => {
       Restaurant: <Utensils className="w-3 h-3" />,
     };
     return icons[amenity] || <CheckCircle className="w-3 h-3" />;
+  };
+
+  const handleBookHotel = (hotel: Hotel) => {
+    setSelectedHotel(hotel);
+    setIsHotelModalOpen(true);
   };
 
   return (
@@ -279,7 +290,11 @@ const PlaceDetail = () => {
                         ₹{hotel.pricePerNight.toLocaleString("en-IN")}
                       </p>
                       <p className="text-xs text-muted-foreground">per night</p>
-                      <Button size="sm" className="mt-2 btn-gradient">
+                      <Button
+                        size="sm"
+                        className="mt-2 btn-gradient"
+                        onClick={() => handleBookHotel(hotel)}
+                      >
                         Book Now
                       </Button>
                     </div>
@@ -317,7 +332,12 @@ const PlaceDetail = () => {
                   <span className="font-medium">{airport.distance}</span>
                 </div>
               </div>
-              <Button className="w-full mt-4" variant="outline">
+              <Button
+                className="w-full mt-4"
+                variant="outline"
+                onClick={() => setIsFlightModalOpen(true)}
+              >
+                <Plane className="w-4 h-4 mr-2" />
                 Search Flights
               </Button>
             </motion.section>
@@ -377,6 +397,21 @@ const PlaceDetail = () => {
           </div>
         </div>
       </main>
+
+      {/* Flight Search Modal */}
+      <FlightSearchModal
+        isOpen={isFlightModalOpen}
+        onClose={() => setIsFlightModalOpen(false)}
+        destinationAirport={airport}
+      />
+
+      {/* Hotel Booking Modal */}
+      <HotelBookingModal
+        isOpen={isHotelModalOpen}
+        onClose={() => setIsHotelModalOpen(false)}
+        hotel={selectedHotel}
+        placeName={place.name}
+      />
     </div>
   );
 };
