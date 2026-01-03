@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import logo from "@/assets/logo.jpg";
 import { Progress } from "@/components/ui/progress";
 import jaipurDest from "@/assets/destination-jaipur.jpg";
 import keralaDest from "@/assets/destination-kerala.jpg";
@@ -78,7 +79,7 @@ const Dashboard = () => {
       <header className="sticky top-0 z-50 glass-card border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <Globe className="w-8 h-8 text-primary" />
+            <img src={logo} alt="GlobeTrotter" className="w-10 h-10 rounded-full object-cover" />
             <span className="font-display text-2xl font-bold text-foreground hidden sm:block">
               GlobeTrotter
             </span>

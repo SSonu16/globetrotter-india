@@ -17,6 +17,7 @@ import varanasiDest from "@/assets/destination-varanasi.jpg";
 import goaDest from "@/assets/destination-goa.jpg";
 import ladakhDest from "@/assets/destination-ladakh.jpg";
 import heroIndia from "@/assets/hero-india.jpg";
+import logo from "@/assets/logo.jpg";
 
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -147,7 +148,7 @@ const Explore = () => {
       <header className="sticky top-0 z-50 glass-card border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <Globe className="w-8 h-8 text-primary" />
+            <img src={logo} alt="GlobeTrotter" className="w-10 h-10 rounded-full object-cover" />
             <span className="font-display text-2xl font-bold text-foreground hidden sm:block">
               GlobeTrotter
             </span>

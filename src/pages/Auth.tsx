@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import logo from "@/assets/logo.jpg";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -99,7 +100,7 @@ const Auth = () => {
           </Link>
 
           <div className="flex items-center gap-2 mb-8">
-            <Globe className="w-10 h-10 text-primary" />
+            <img src={logo} alt="GlobeTrotter" className="w-12 h-12 rounded-full object-cover" />
             <span className="font-display text-3xl font-bold text-foreground">GlobeTrotter</span>
           </div>
 
@@ -230,7 +231,7 @@ const Auth = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            <Globe className="w-24 h-24 text-primary-foreground mb-8 mx-auto animate-float" />
+            <img src={logo} alt="GlobeTrotter" className="w-32 h-32 rounded-full object-cover mb-8 mx-auto animate-float shadow-2xl" />
             <h2 className="font-display text-4xl font-bold text-primary-foreground mb-4">
               Your Journey Awaits
             </h2>

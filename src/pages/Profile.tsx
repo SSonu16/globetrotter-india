@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import logo from "@/assets/logo.jpg";
 import { useToast } from "@/hooks/use-toast";
 import jaipurDest from "@/assets/destination-jaipur.jpg";
 import keralaDest from "@/assets/destination-kerala.jpg";
@@ -62,7 +63,7 @@ const Profile = () => {
             </Button>
           </Link>
           <Link to="/" className="flex items-center gap-2">
-            <Globe className="w-8 h-8 text-primary" />
+            <img src={logo} alt="GlobeTrotter" className="w-10 h-10 rounded-full object-cover" />
             <span className="font-display text-2xl font-bold text-foreground hidden sm:block">
               GlobeTrotter
             </span>
