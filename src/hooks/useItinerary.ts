@@ -144,49 +144,80 @@ export function useItinerary(tripId: string) {
     if (!user) return { error: new Error('No user logged in'), data: null };
 
     setGenerating(true);
+    console.log('Starting AI itinerary generation with details:', tripDetails);
+    
     try {
+      toast({
+        title: 'Generating Itinerary...',
+        description: 'AI is creating your personalized travel plan. This may take a moment.',
+      });
+
       const response = await supabase.functions.invoke('generate-itinerary', {
         body: tripDetails,
       });
 
+      console.log('Edge function response:', response);
+
       if (response.error) {
         console.error('Edge function error:', response.error);
-        throw new Error(response.error.message || 'Edge Function returned a non-2xx status code');
+        const errorMessage = response.error.message || 'Failed to generate itinerary';
+        throw new Error(errorMessage);
       }
       
       const data = response.data;
-      if (!data) throw new Error('No data received from AI');
-      if (data.error) throw new Error(data.error);
+      console.log('Response data:', data);
+      
+      if (!data) {
+        throw new Error('No data received from AI service');
+      }
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
 
       const itinerary = data.itinerary;
       
+      if (!itinerary || !Array.isArray(itinerary) || itinerary.length === 0) {
+        throw new Error('AI returned empty or invalid itinerary');
+      }
+      
+      console.log('Parsed itinerary:', itinerary.length, 'days');
+
       // Clear existing items for this trip
-      await supabase
+      const { error: deleteError } = await supabase
         .from('itinerary_items')
         .delete()
         .eq('trip_id', tripId)
         .eq('user_id', user.id);
+      
+      if (deleteError) {
+        console.error('Error clearing existing items:', deleteError);
+      }
 
       // Insert new items
       const newItems: any[] = [];
       for (const day of itinerary) {
-        for (let i = 0; i < day.activities.length; i++) {
-          const activity = day.activities[i];
-          newItems.push({
-            trip_id: tripId,
-            user_id: user.id,
-            day_number: day.day,
-            time_slot: activity.time,
-            title: activity.title,
-            description: activity.description,
-            location: activity.location,
-            estimated_cost: activity.cost || 0,
-            duration_minutes: activity.duration,
-            category: activity.category || 'activity',
-            sort_order: i,
-          });
+        if (day.activities && Array.isArray(day.activities)) {
+          for (let i = 0; i < day.activities.length; i++) {
+            const activity = day.activities[i];
+            newItems.push({
+              trip_id: tripId,
+              user_id: user.id,
+              day_number: day.day || 1,
+              time_slot: activity.time || null,
+              title: activity.title || 'Activity',
+              description: activity.description || null,
+              location: activity.location || null,
+              estimated_cost: Number(activity.cost) || 0,
+              duration_minutes: Number(activity.duration) || 60,
+              category: activity.category || 'activity',
+              sort_order: i,
+            });
+          }
         }
       }
+
+      console.log('Inserting', newItems.length, 'items');
 
       if (newItems.length > 0) {
         const { data: insertedData, error: insertError } = await supabase
@@ -194,21 +225,37 @@ export function useItinerary(tripId: string) {
           .insert(newItems)
           .select();
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Insert error:', insertError);
+          throw insertError;
+        }
         setItems(insertedData || []);
+        console.log('Successfully inserted items:', insertedData?.length);
       }
 
       toast({
-        title: 'Itinerary Generated!',
-        description: `Created ${newItems.length} activities for your trip.`,
+        title: 'Itinerary Generated! 🎉',
+        description: `Created ${newItems.length} activities across ${itinerary.length} days.`,
       });
 
       return { error: null, data: itinerary };
     } catch (error: any) {
       console.error('Error generating itinerary:', error);
+      
+      let errorMessage = 'Failed to generate itinerary. Please try again.';
+      if (error.message?.includes('Rate limit')) {
+        errorMessage = 'Too many requests. Please wait a moment and try again.';
+      } else if (error.message?.includes('timeout') || error.message?.includes('504')) {
+        errorMessage = 'Request timed out. Please try again.';
+      } else if (error.message?.includes('credits')) {
+        errorMessage = 'AI credits exhausted. Please try again later.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to generate itinerary.',
+        title: 'Generation Failed',
+        description: errorMessage,
         variant: 'destructive',
       });
       return { error, data: null };
