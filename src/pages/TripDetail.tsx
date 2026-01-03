@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ChevronUp,
   Plane,
+  Route,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -25,6 +26,7 @@ import logo from "@/assets/logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { format, parseISO, differenceInDays } from "date-fns";
+import ItineraryBuilder from "@/components/ItineraryBuilder";
 
 interface Trip {
   id: string;
@@ -186,12 +188,29 @@ const TripDetail = () => {
           </motion.div>
         )}
 
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs defaultValue="itinerary" className="space-y-6">
           <TabsList className="bg-secondary/50 p-1">
+            <TabsTrigger value="itinerary">
+              <Route className="w-4 h-4 mr-2" />
+              Itinerary
+            </TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="budget">Budget</TabsTrigger>
             <TabsTrigger value="photos">Photos</TabsTrigger>
           </TabsList>
+
+          {/* Itinerary Tab */}
+          <TabsContent value="itinerary" className="space-y-6">
+            <ItineraryBuilder
+              tripId={trip.id}
+              tripName={trip.name}
+              startDate={trip.start_date}
+              endDate={trip.end_date}
+              budget={totalBudget}
+              description={trip.description}
+              tripDuration={tripDuration}
+            />
+          </TabsContent>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
@@ -277,23 +296,6 @@ const TripDetail = () => {
                   </p>
                 </div>
               </div>
-            </motion.div>
-
-            {/* Coming Soon: Itinerary */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-12 bg-card rounded-2xl border border-border"
-            >
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="font-display text-xl font-semibold text-foreground mb-2">
-                Itinerary Coming Soon
-              </h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Day-by-day planning with activities and destinations will be available soon.
-              </p>
             </motion.div>
           </TabsContent>
 
