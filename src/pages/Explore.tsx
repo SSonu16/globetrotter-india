@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -16,10 +16,19 @@ import logo from "@/assets/logo.jpg";
 import { indianStates, getAllPlaces, type TouristPlace } from "@/data/indianDestinations";
 
 const Explore = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [expandedStates, setExpandedStates] = useState<string[]>([]);
   const navigate = useNavigate();
+
+  // Update search from URL params
+  useEffect(() => {
+    const urlSearch = searchParams.get("search");
+    if (urlSearch) {
+      setSearchQuery(urlSearch);
+    }
+  }, [searchParams]);
 
   const regions = [
     { id: "all", name: "All India" },
