@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Globe, MapPin, Calendar, DollarSign, Users, Star, ArrowRight, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import FeatureDetailModal from "@/components/FeatureDetailModal";
 import heroImage from "@/assets/hero-india.jpg";
 import jaipurDest from "@/assets/destination-jaipur.jpg";
 import keralaDest from "@/assets/destination-kerala.jpg";
@@ -9,26 +11,56 @@ import varanasiDest from "@/assets/destination-varanasi.jpg";
 import logo from "@/assets/logo.jpg";
 
 const Index = () => {
+  const [selectedFeature, setSelectedFeature] = useState<typeof features[0] | null>(null);
+
   const features = [
     {
       icon: MapPin,
       title: "Multi-City Planning",
       description: "Plan trips across multiple cities in India with ease. Add stops, reorder, and create the perfect route.",
+      details: [
+        "Add multiple destinations to your trip",
+        "Drag and drop to reorder your route",
+        "Get optimized travel routes between cities",
+        "Save and share your custom itinerary"
+      ],
+      benefits: ["Save time on route planning", "Discover hidden gems along the way", "Optimize travel time and costs"]
     },
     {
       icon: Calendar,
       title: "Smart Itineraries",
       description: "Build day-by-day itineraries with activities, timings, and locations all in one place.",
+      details: [
+        "Create daily activity schedules",
+        "Set times and durations for each activity",
+        "Add notes and important details",
+        "Get reminder notifications"
+      ],
+      benefits: ["Never miss an attraction", "Balance rest and exploration", "Share plans with travel companions"]
     },
     {
       icon: DollarSign,
       title: "Budget Tracking",
       description: "Keep track of your travel expenses in INR with detailed cost breakdowns and alerts.",
+      details: [
+        "Set your total trip budget",
+        "Log expenses by category",
+        "Track spending in real-time",
+        "Get alerts when approaching limits"
+      ],
+      benefits: ["Stay within budget", "Identify spending patterns", "Plan future trips better"]
     },
     {
       icon: Users,
       title: "Share & Collaborate",
       description: "Share your trips publicly or collaborate with travel companions in real-time.",
+      details: [
+        "Invite friends to collaborate",
+        "Edit itineraries together",
+        "Share public trip links",
+        "Export and print your plans"
+      ],
+      benefits: ["Plan group trips easily", "Get input from travel buddies", "Inspire others with your journeys"]
     },
   ];
 
@@ -158,11 +190,12 @@ const Index = () => {
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                className="bg-card rounded-2xl p-8 card-hover border border-border"
+                className="bg-card rounded-2xl p-8 card-hover border border-border cursor-pointer"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
+                onClick={() => setSelectedFeature(feature)}
               >
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
                   <feature.icon className="w-7 h-7 text-primary" />
@@ -293,6 +326,12 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      {/* Feature Detail Modal */}
+      <FeatureDetailModal
+        feature={selectedFeature}
+        isOpen={!!selectedFeature}
+        onClose={() => setSelectedFeature(null)}
+      />
     </div>
   );
 };
