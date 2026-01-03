@@ -15,19 +15,68 @@ serve(async (req) => {
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("LOVABLE_API_KEY is not configured");
+      return new Response(JSON.stringify({ error: "AI service not configured. Please contact support." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    console.log("Generating itinerary for:", { tripName, destination, startDate, endDate, budget });
+    // Extract destination hints from trip name and description
+    const tripNameLower = (tripName || '').toLowerCase();
+    const descriptionLower = (description || '').toLowerCase();
+    const combinedText = `${tripName} ${description || ''}`;
+    
+    // Try to identify destination from trip name/description
+    let inferredDestination = destination;
+    if (!inferredDestination) {
+      // Common Indian destinations to look for
+      const destinations = [
+        'jaipur', 'delhi', 'mumbai', 'goa', 'kerala', 'varanasi', 'agra', 'udaipur',
+        'manali', 'shimla', 'ladakh', 'darjeeling', 'ooty', 'mysore', 'hyderabad',
+        'chennai', 'kolkata', 'bengaluru', 'bangalore', 'pune', 'rajasthan', 'kashmir',
+        'rishikesh', 'haridwar', 'amritsar', 'jaisalmer', 'jodhpur', 'pushkar',
+        'hampi', 'kodaikanal', 'munnar', 'alleppey', 'kovalam', 'kochi', 'cochin'
+      ];
+      
+      for (const dest of destinations) {
+        if (tripNameLower.includes(dest) || descriptionLower.includes(dest)) {
+          inferredDestination = dest.charAt(0).toUpperCase() + dest.slice(1);
+          break;
+        }
+      }
+      
+      // If still no destination, try to extract context from description
+      if (!inferredDestination && description) {
+        // Look for keywords that suggest types of places
+        if (descriptionLower.includes('historical') || descriptionLower.includes('heritage')) {
+          inferredDestination = 'Historical places in India (Delhi, Agra, Jaipur)';
+        } else if (descriptionLower.includes('beach')) {
+          inferredDestination = 'Beach destinations in India (Goa, Kerala)';
+        } else if (descriptionLower.includes('mountain') || descriptionLower.includes('hill')) {
+          inferredDestination = 'Hill stations in India (Shimla, Manali, Ooty)';
+        } else if (descriptionLower.includes('spiritual') || descriptionLower.includes('temple')) {
+          inferredDestination = 'Spiritual destinations in India (Varanasi, Rishikesh)';
+        } else {
+          inferredDestination = description;
+        }
+      }
+    }
 
-    const systemPrompt = `You are an expert travel planner specializing in creating detailed, realistic travel itineraries. 
+    const finalDestination = inferredDestination || 'Popular destinations in India';
+    
+    console.log("Generating itinerary for:", { tripName, destination: finalDestination, startDate, endDate, budget });
+
+    const systemPrompt = `You are an expert travel planner specializing in creating detailed, realistic travel itineraries for India.
     Create day-by-day itineraries with specific timings, activities, locations, and estimated costs in Indian Rupees (₹).
     Focus on practical recommendations including local cuisine, cultural experiences, transportation tips, and must-see attractions.
-    Always provide realistic time estimates and costs based on typical Indian travel expenses.`;
+    Always provide realistic time estimates and costs based on typical Indian travel expenses.
+    When given context like "historical places" or descriptions, suggest specific famous destinations that match.`;
 
     const userPrompt = `Create a detailed day-by-day itinerary for a trip with these details:
     - Trip Name: ${tripName}
-    - Destination/Description: ${destination || description || 'India'}
+    - Destination/Context: ${finalDestination}
+    - Trip Description: ${description || 'General exploration'}
     - Start Date: ${startDate}
     - End Date: ${endDate}
     - Total Budget: ₹${budget || 'flexible'}

@@ -145,11 +145,17 @@ export function useItinerary(tripId: string) {
 
     setGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-itinerary', {
+      const response = await supabase.functions.invoke('generate-itinerary', {
         body: tripDetails,
       });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Edge function error:', response.error);
+        throw new Error(response.error.message || 'Edge Function returned a non-2xx status code');
+      }
+      
+      const data = response.data;
+      if (!data) throw new Error('No data received from AI');
       if (data.error) throw new Error(data.error);
 
       const itinerary = data.itinerary;
