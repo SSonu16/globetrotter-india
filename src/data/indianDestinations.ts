@@ -95,6 +95,24 @@ import aizawlDest from "@/assets/destination-aizawl.jpg";
 import northGoaDest from "@/assets/destination-north-goa.jpg";
 import southGoaDest from "@/assets/destination-south-goa.jpg";
 import oldGoaDest from "@/assets/destination-old-goa.jpg";
+// State-specific images
+import stateUPDest from "@/assets/state-uttar-pradesh.jpg";
+import stateAPDest from "@/assets/state-andhra-pradesh.jpg";
+import stateGujaratDest from "@/assets/state-gujarat.jpg";
+import stateOdishaDest from "@/assets/state-odisha.jpg";
+import stateBiharDest from "@/assets/state-bihar.jpg";
+import stateJharkhandDest from "@/assets/state-jharkhand.jpg";
+import stateMPDest from "@/assets/state-madhya-pradesh.jpg";
+import stateChhattisgarhDest from "@/assets/state-chhattisgarh.jpg";
+import stateMeghalayaDest from "@/assets/state-meghalaya.jpg";
+import stateAssamDest from "@/assets/state-assam.jpg";
+import stateArunachalDest from "@/assets/state-arunachal.jpg";
+import stateNagalandDest from "@/assets/state-nagaland.jpg";
+import stateManipurDest from "@/assets/state-manipur.jpg";
+import stateTripuraDest from "@/assets/state-tripura.jpg";
+import stateMizoramDest from "@/assets/state-mizoram.jpg";
+import stateAndamanDest from "@/assets/state-andaman.jpg";
+import stateLakshadweepDest from "@/assets/state-lakshadweep.jpg";
 
 export interface Airport {
   name: string;
@@ -204,7 +222,7 @@ export const indianStates: IndianState[] = [
     name: "Uttar Pradesh",
     region: "north",
     capital: "Lucknow",
-    image: agraDest,
+    image: stateUPDest,
     places: [
       {
         id: "agra",
@@ -728,7 +746,7 @@ export const indianStates: IndianState[] = [
     name: "Andhra Pradesh",
     region: "south",
     capital: "Amaravati",
-    image: maduraiDest,
+    image: stateAPDest,
     places: [
       {
         id: "tirupati",
@@ -904,7 +922,7 @@ export const indianStates: IndianState[] = [
     name: "Gujarat",
     region: "west",
     capital: "Gandhinagar",
-    image: jaisalmerDest,
+    image: stateGujaratDest,
     places: [
       {
         id: "ahmedabad",
@@ -1028,7 +1046,7 @@ export const indianStates: IndianState[] = [
     name: "Odisha",
     region: "east",
     capital: "Bhubaneswar",
-    image: varanasiDest,
+    image: stateOdishaDest,
     places: [
       {
         id: "bhubaneswar",
@@ -1073,7 +1091,7 @@ export const indianStates: IndianState[] = [
     name: "Bihar",
     region: "east",
     capital: "Patna",
-    image: varanasiDest,
+    image: stateBiharDest,
     places: [
       {
         id: "bodh-gaya",
@@ -1116,7 +1134,7 @@ export const indianStates: IndianState[] = [
     name: "Jharkhand",
     region: "east",
     capital: "Ranchi",
-    image: keralaDest,
+    image: stateJharkhandDest,
     places: [
       {
         id: "ranchi",
@@ -1149,7 +1167,7 @@ export const indianStates: IndianState[] = [
     name: "Madhya Pradesh",
     region: "central",
     capital: "Bhopal",
-    image: hampiDest,
+    image: stateMPDest,
     places: [
       {
         id: "khajuraho",
@@ -1218,7 +1236,7 @@ export const indianStates: IndianState[] = [
     name: "Chhattisgarh",
     region: "central",
     capital: "Raipur",
-    image: keralaDest,
+    image: stateChhattisgarhDest,
     places: [
       {
         id: "chitrakote-falls",
@@ -1282,7 +1300,7 @@ export const indianStates: IndianState[] = [
     name: "Meghalaya",
     region: "northeast",
     capital: "Shillong",
-    image: keralaDest,
+    image: stateMeghalayaDest,
     places: [
       {
         id: "shillong",
@@ -1327,7 +1345,7 @@ export const indianStates: IndianState[] = [
     name: "Assam",
     region: "northeast",
     capital: "Dispur",
-    image: keralaDest,
+    image: stateAssamDest,
     places: [
       {
         id: "guwahati",
@@ -1369,7 +1387,7 @@ export const indianStates: IndianState[] = [
     name: "Arunachal Pradesh",
     region: "northeast",
     capital: "Itanagar",
-    image: ladakhDest,
+    image: stateArunachalDest,
     places: [
       {
         id: "tawang",
@@ -1400,7 +1418,7 @@ export const indianStates: IndianState[] = [
     name: "Nagaland",
     region: "northeast",
     capital: "Kohima",
-    image: keralaDest,
+    image: stateNagalandDest,
     places: [
       {
         id: "kohima",
@@ -1420,7 +1438,7 @@ export const indianStates: IndianState[] = [
     name: "Manipur",
     region: "northeast",
     capital: "Imphal",
-    image: keralaDest,
+    image: stateManipurDest,
     places: [
       {
         id: "imphal",
@@ -1440,7 +1458,7 @@ export const indianStates: IndianState[] = [
     name: "Tripura",
     region: "northeast",
     capital: "Agartala",
-    image: gangtokDest,
+    image: stateTripuraDest,
     places: [
       {
         id: "agartala",
@@ -1460,7 +1478,7 @@ export const indianStates: IndianState[] = [
     name: "Mizoram",
     region: "northeast",
     capital: "Aizawl",
-    image: keralaDest,
+    image: stateMizoramDest,
     places: [
       {
         id: "aizawl",
@@ -1481,7 +1499,7 @@ export const indianStates: IndianState[] = [
     name: "Andaman & Nicobar",
     region: "east",
     capital: "Port Blair",
-    image: goaDest,
+    image: stateAndamanDest,
     places: [
       {
         id: "port-blair",
@@ -1509,7 +1527,7 @@ export const indianStates: IndianState[] = [
         id: "neil-island",
         name: "Neil Island (Shaheed Dweep)",
         description: "Small island with pristine beaches and coral reefs, perfect for relaxation.",
-        image: goaDest,
+    image: stateLakshadweepDest,
         rating: 4.6,
         avgCost: 35000,
         bestTime: "October to May",
