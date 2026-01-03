@@ -23,9 +23,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import parisDest from "@/assets/destination-paris.jpg";
-import tokyoDest from "@/assets/destination-tokyo.jpg";
-import baliDest from "@/assets/destination-bali.jpg";
+import jaipurDest from "@/assets/destination-jaipur.jpg";
+import keralaDest from "@/assets/destination-kerala.jpg";
+import goaDest from "@/assets/destination-goa.jpg";
 
 const TripList = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,30 +33,30 @@ const TripList = () => {
   const trips = [
     {
       id: 1,
-      name: "European Adventure",
+      name: "Rajasthan Royal Tour",
       startDate: "Mar 15, 2025",
-      endDate: "Apr 2, 2025",
-      cities: ["Paris", "Rome", "Barcelona"],
+      endDate: "Mar 25, 2025",
+      cities: ["Jaipur", "Udaipur", "Jodhpur"],
       status: "upcoming",
-      image: parisDest,
+      image: jaipurDest,
     },
     {
       id: 2,
-      name: "Japan Cherry Blossom",
+      name: "Kerala Backwaters Escape",
       startDate: "Apr 10, 2025",
-      endDate: "Apr 24, 2025",
-      cities: ["Tokyo", "Kyoto", "Osaka"],
+      endDate: "Apr 18, 2025",
+      cities: ["Kochi", "Alleppey", "Munnar"],
       status: "upcoming",
-      image: tokyoDest,
+      image: keralaDest,
     },
     {
       id: 3,
-      name: "Bali Relaxation",
+      name: "Goa Beach Holiday",
       startDate: "Jan 5, 2025",
-      endDate: "Jan 15, 2025",
-      cities: ["Ubud", "Seminyak", "Nusa Dua"],
+      endDate: "Jan 12, 2025",
+      cities: ["North Goa", "South Goa", "Panjim"],
       status: "completed",
-      image: baliDest,
+      image: goaDest,
     },
   ];
 
@@ -96,7 +96,7 @@ const TripList = () => {
                 My Trips
               </h1>
               <p className="text-muted-foreground">
-                Manage and view all your planned adventures.
+                Manage and view all your planned Indian adventures.
               </p>
             </div>
           </div>
@@ -131,7 +131,7 @@ const TripList = () => {
                 <p className="text-muted-foreground mb-6">
                   {searchQuery
                     ? "Try a different search term"
-                    : "Start planning your first adventure!"}
+                    : "Start planning your first Indian adventure!"}
                 </p>
                 <Link to="/trips/new">
                   <Button className="btn-gradient">
