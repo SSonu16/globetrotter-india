@@ -19,28 +19,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import parisDest from "@/assets/destination-paris.jpg";
-import tokyoDest from "@/assets/destination-tokyo.jpg";
-import baliDest from "@/assets/destination-bali.jpg";
+import jaipurDest from "@/assets/destination-jaipur.jpg";
+import keralaDest from "@/assets/destination-kerala.jpg";
+import ladakhDest from "@/assets/destination-ladakh.jpg";
 
 const Profile = () => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState({
-    name: "John Traveler",
-    email: "john@example.com",
+    name: "Rahul Sharma",
+    email: "rahul@example.com",
   });
 
   const savedDestinations = [
-    { name: "Paris", country: "France", image: parisDest },
-    { name: "Tokyo", country: "Japan", image: tokyoDest },
-    { name: "Bali", country: "Indonesia", image: baliDest },
+    { name: "Jaipur", state: "Rajasthan", image: jaipurDest },
+    { name: "Kerala", state: "God's Own Country", image: keralaDest },
+    { name: "Ladakh", state: "Adventure Paradise", image: ladakhDest },
   ];
 
   const stats = [
     { label: "Trips Planned", value: 5 },
-    { label: "Cities Visited", value: 12 },
-    { label: "Countries", value: 8 },
+    { label: "Cities Visited", value: 18 },
+    { label: "States", value: 12 },
   ];
 
   const handleSave = () => {
@@ -181,7 +181,7 @@ const Profile = () => {
                     <p className="font-semibold text-primary-foreground">{dest.name}</p>
                     <p className="text-sm text-primary-foreground/80 flex items-center gap-1">
                       <MapPin className="w-3 h-3" />
-                      {dest.country}
+                      {dest.state}
                     </p>
                   </div>
                   <button className="absolute top-2 right-2 w-8 h-8 bg-destructive/80 rounded-full flex items-center justify-center text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity">
@@ -213,7 +213,7 @@ const Profile = () => {
                   <p className="font-medium text-foreground">Currency</p>
                   <p className="text-sm text-muted-foreground">Display prices in your currency</p>
                 </div>
-                <Button variant="outline">USD ($)</Button>
+                <Button variant="outline">INR (₹)</Button>
               </div>
               <Separator />
               <div className="flex items-center justify-between py-3">

@@ -7,7 +7,6 @@ import {
   MapPin,
   Calendar,
   DollarSign,
-  MoreHorizontal,
   Search,
   Bell,
   User,
@@ -16,60 +15,61 @@ import {
   Clock,
   Plane,
   Camera,
-  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import parisDest from "@/assets/destination-paris.jpg";
-import tokyoDest from "@/assets/destination-tokyo.jpg";
-import baliDest from "@/assets/destination-bali.jpg";
+import jaipurDest from "@/assets/destination-jaipur.jpg";
+import keralaDest from "@/assets/destination-kerala.jpg";
+import goaDest from "@/assets/destination-goa.jpg";
+import varanasiDest from "@/assets/destination-varanasi.jpg";
+import ladakhDest from "@/assets/destination-ladakh.jpg";
 
 const Dashboard = () => {
   const [userName] = useState("Traveler");
 
-  // Mock data for trips
+  // Mock data for trips - Indian destinations
   const upcomingTrips = [
     {
       id: 1,
-      name: "European Adventure",
+      name: "Rajasthan Royal Tour",
       startDate: "Mar 15, 2025",
-      endDate: "Apr 2, 2025",
-      cities: ["Paris", "Rome", "Barcelona"],
-      budget: 5000,
-      spent: 2340,
-      image: parisDest,
+      endDate: "Mar 25, 2025",
+      cities: ["Jaipur", "Udaipur", "Jodhpur"],
+      budget: 45000,
+      spent: 18000,
+      image: jaipurDest,
       daysLeft: 72,
     },
     {
       id: 2,
-      name: "Japan Cherry Blossom",
+      name: "Kerala Backwaters Escape",
       startDate: "Apr 10, 2025",
-      endDate: "Apr 24, 2025",
-      cities: ["Tokyo", "Kyoto", "Osaka"],
-      budget: 4500,
-      spent: 1200,
-      image: tokyoDest,
+      endDate: "Apr 18, 2025",
+      cities: ["Kochi", "Alleppey", "Munnar"],
+      budget: 35000,
+      spent: 12000,
+      image: keralaDest,
       daysLeft: 98,
     },
   ];
 
   const popularDestinations = [
-    { name: "Paris", country: "France", image: parisDest, avgCost: 2500 },
-    { name: "Tokyo", country: "Japan", image: tokyoDest, avgCost: 3200 },
-    { name: "Bali", country: "Indonesia", image: baliDest, avgCost: 1800 },
+    { name: "Goa", state: "Beaches & Nightlife", image: goaDest, avgCost: 15000 },
+    { name: "Varanasi", state: "Spiritual Capital", image: varanasiDest, avgCost: 12000 },
+    { name: "Ladakh", state: "Adventure Paradise", image: ladakhDest, avgCost: 35000 },
   ];
 
   const recentActivity = [
-    { type: "added", item: "Eiffel Tower Visit", trip: "European Adventure", time: "2 hours ago" },
-    { type: "budget", item: "Updated budget", trip: "Japan Cherry Blossom", time: "5 hours ago" },
-    { type: "city", item: "Added Barcelona", trip: "European Adventure", time: "1 day ago" },
+    { type: "added", item: "Hawa Mahal Visit", trip: "Rajasthan Royal Tour", time: "2 hours ago" },
+    { type: "budget", item: "Updated budget", trip: "Kerala Backwaters Escape", time: "5 hours ago" },
+    { type: "city", item: "Added Jodhpur", trip: "Rajasthan Royal Tour", time: "1 day ago" },
   ];
 
   const budgetStats = {
-    totalPlanned: 9500,
-    totalSpent: 3540,
-    avgPerDay: 180,
+    totalPlanned: 80000,
+    totalSpent: 30000,
+    avgPerDay: 2500,
   };
 
   return (
@@ -119,10 +119,10 @@ const Dashboard = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
-                Welcome back, {userName}! 👋
+                Namaste, {userName}! 🙏
               </h1>
               <p className="text-muted-foreground">
-                Ready to plan your next adventure? You have {upcomingTrips.length} upcoming trips.
+                Ready to plan your next Indian adventure? You have {upcomingTrips.length} upcoming trips.
               </p>
             </div>
             <Link to="/trips/new">
@@ -159,18 +159,18 @@ const Dashboard = () => {
             {
               icon: DollarSign,
               label: "Total Budget",
-              value: `$${budgetStats.totalPlanned.toLocaleString()}`,
+              value: `₹${budgetStats.totalPlanned.toLocaleString('en-IN')}`,
               color: "text-accent",
               bg: "bg-accent/10",
             },
             {
               icon: TrendingUp,
               label: "Avg. Per Day",
-              value: `$${budgetStats.avgPerDay}`,
+              value: `₹${budgetStats.avgPerDay.toLocaleString('en-IN')}`,
               color: "text-warning",
               bg: "bg-warning/10",
             },
-          ].map((stat, index) => (
+          ].map((stat) => (
             <div
               key={stat.label}
               className="bg-card rounded-2xl p-6 border border-border card-hover"
@@ -234,7 +234,7 @@ const Dashboard = () => {
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Budget progress</span>
                         <span className="font-semibold text-foreground">
-                          ${trip.spent} / ${trip.budget}
+                          ₹{trip.spent.toLocaleString('en-IN')} / ₹{trip.budget.toLocaleString('en-IN')}
                         </span>
                       </div>
                       <Progress value={(trip.spent / trip.budget) * 100} className="h-2" />
@@ -293,22 +293,22 @@ const Dashboard = () => {
               </div>
               <p className="text-muted-foreground">Total Spent</p>
               <p className="font-display text-xl font-bold text-foreground">
-                ${budgetStats.totalSpent.toLocaleString()}
+                ₹{budgetStats.totalSpent.toLocaleString('en-IN')}
               </p>
             </div>
 
             <div className="space-y-4">
               <h3 className="font-semibold text-foreground">Spending by Category</h3>
               {[
-                { label: "Transport", value: 1200, color: "bg-primary" },
-                { label: "Accommodation", value: 1500, color: "bg-accent" },
-                { label: "Activities", value: 540, color: "bg-success" },
-                { label: "Food & Dining", value: 300, color: "bg-warning" },
+                { label: "Transport", value: 12000, color: "bg-primary" },
+                { label: "Accommodation", value: 10000, color: "bg-accent" },
+                { label: "Activities", value: 5000, color: "bg-success" },
+                { label: "Food & Dining", value: 3000, color: "bg-warning" },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${item.color}`} />
                   <span className="text-sm text-muted-foreground flex-1">{item.label}</span>
-                  <span className="font-semibold text-foreground">${item.value}</span>
+                  <span className="font-semibold text-foreground">₹{item.value.toLocaleString('en-IN')}</span>
                 </div>
               ))}
             </div>
@@ -321,7 +321,7 @@ const Dashboard = () => {
                     <TrendingUp className="w-4 h-4 text-success" />
                   </div>
                   <p className="text-sm text-foreground">
-                    You're 15% under budget for European Adventure. Great job!
+                    You're 20% under budget for Rajasthan Tour. Great job!
                   </p>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-warning/10 rounded-xl">
@@ -329,7 +329,7 @@ const Dashboard = () => {
                     <Clock className="w-4 h-4 text-warning" />
                   </div>
                   <p className="text-sm text-foreground">
-                    Book flights 6 weeks ahead for best prices.
+                    Book trains on IRCTC 2 months ahead for best prices.
                   </p>
                 </div>
               </div>
@@ -367,11 +367,11 @@ const Dashboard = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-semibold text-foreground">{dest.name}</h3>
-                      <p className="text-sm text-muted-foreground">{dest.country}</p>
+                      <p className="text-sm text-muted-foreground">{dest.state}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">From</p>
-                      <p className="font-semibold text-primary">${dest.avgCost}</p>
+                      <p className="font-semibold text-primary">₹{dest.avgCost.toLocaleString('en-IN')}</p>
                     </div>
                   </div>
                 </div>

@@ -2,17 +2,17 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Globe, MapPin, Calendar, DollarSign, Users, Star, ArrowRight, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-travel.jpg";
-import parisDest from "@/assets/destination-paris.jpg";
-import tokyoDest from "@/assets/destination-tokyo.jpg";
-import baliDest from "@/assets/destination-bali.jpg";
+import heroImage from "@/assets/hero-india.jpg";
+import jaipurDest from "@/assets/destination-jaipur.jpg";
+import keralaDest from "@/assets/destination-kerala.jpg";
+import varanasiDest from "@/assets/destination-varanasi.jpg";
 
 const Index = () => {
   const features = [
     {
       icon: MapPin,
       title: "Multi-City Planning",
-      description: "Plan trips across multiple cities with ease. Add stops, reorder, and create the perfect route.",
+      description: "Plan trips across multiple cities in India with ease. Add stops, reorder, and create the perfect route.",
     },
     {
       icon: Calendar,
@@ -22,7 +22,7 @@ const Index = () => {
     {
       icon: DollarSign,
       title: "Budget Tracking",
-      description: "Keep track of your travel expenses with detailed cost breakdowns and alerts.",
+      description: "Keep track of your travel expenses in INR with detailed cost breakdowns and alerts.",
     },
     {
       icon: Users,
@@ -32,9 +32,9 @@ const Index = () => {
   ];
 
   const destinations = [
-    { name: "Paris", country: "France", image: parisDest, rating: 4.9 },
-    { name: "Tokyo", country: "Japan", image: tokyoDest, rating: 4.8 },
-    { name: "Bali", country: "Indonesia", image: baliDest, rating: 4.7 },
+    { name: "Jaipur", state: "Rajasthan", image: jaipurDest, rating: 4.9 },
+    { name: "Kerala", state: "God's Own Country", image: keralaDest, rating: 4.8 },
+    { name: "Varanasi", state: "Uttar Pradesh", image: varanasiDest, rating: 4.7 },
   ];
 
   return (
@@ -47,7 +47,7 @@ const Index = () => {
             <span className="font-display text-2xl font-bold text-foreground">GlobeTrotter</span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/destinations" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/explore" className="text-muted-foreground hover:text-foreground transition-colors">
               Destinations
             </Link>
             <Link to="/features" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -74,7 +74,7 @@ const Index = () => {
         <div className="absolute inset-0 z-0">
           <img
             src={heroImage}
-            alt="Beautiful travel destination"
+            alt="Taj Mahal at sunrise"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent" />
@@ -89,15 +89,15 @@ const Index = () => {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
                 <Plane className="w-4 h-4" />
-                Your adventure starts here
+                Explore Incredible India
               </span>
               <h1 className="font-display text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
-                Plan Your
-                <span className="hero-text-gradient block">Dream Journey</span>
+                Discover
+                <span className="hero-text-gradient block">Incredible India</span>
               </h1>
               <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                Create personalized itineraries, manage budgets, and explore destinations worldwide. 
-                GlobeTrotter makes travel planning effortless and exciting.
+                From the Himalayas to Kerala backwaters, plan your perfect Indian adventure. 
+                GlobeTrotter makes exploring India effortless and exciting.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/auth?mode=signup">
@@ -128,7 +128,7 @@ const Index = () => {
               <MapPin className="w-6 h-6 text-success" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">50+ Cities</p>
+              <p className="font-semibold text-foreground">29 States</p>
               <p className="text-sm text-muted-foreground">Ready to explore</p>
             </div>
           </div>
@@ -149,7 +149,7 @@ const Index = () => {
               Everything You Need
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Powerful features to help you plan, organize, and enjoy your travels without the stress.
+              Powerful features to help you plan, organize, and enjoy your Indian travels without the stress.
             </p>
           </motion.div>
 
@@ -193,7 +193,7 @@ const Index = () => {
                 Popular Destinations
               </h2>
               <p className="text-xl text-muted-foreground">
-                Explore trending destinations loved by travelers worldwide.
+                Explore trending destinations across India.
               </p>
             </div>
             <Link to="/explore" className="mt-4 md:mt-0">
@@ -230,7 +230,7 @@ const Index = () => {
                   <h3 className="font-display text-2xl font-bold text-primary-foreground mb-1">
                     {dest.name}
                   </h3>
-                  <p className="text-primary-foreground/80">{dest.country}</p>
+                  <p className="text-primary-foreground/80">{dest.state}</p>
                 </div>
               </motion.div>
             ))}
@@ -252,10 +252,10 @@ const Index = () => {
             transition={{ duration: 0.6 }}
           >
             <h2 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
-              Ready to Explore the World?
+              Ready to Explore India?
             </h2>
             <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-8">
-              Join thousands of travelers who use GlobeTrotter to plan unforgettable adventures.
+              Join thousands of travelers who use GlobeTrotter to plan unforgettable Indian adventures.
             </p>
             <Link to="/auth?mode=signup">
               <Button size="lg" className="btn-accent-gradient text-lg px-8 py-6">
@@ -273,7 +273,7 @@ const Index = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
               <Globe className="w-6 h-6 text-primary-foreground" />
-              <span className="font-display text-xl font-bold text-primary-foreground">GlobeTrotter</span>
+              <span className="font-display text-xl font-bold text-primary-foreground">GlobeTrotter India</span>
             </div>
             <div className="flex items-center gap-8">
               <Link to="/privacy" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
@@ -287,7 +287,7 @@ const Index = () => {
               </Link>
             </div>
             <p className="text-primary-foreground/50 text-sm">
-              © 2025 GlobeTrotter. All rights reserved.
+              © 2025 GlobeTrotter India. All rights reserved.
             </p>
           </div>
         </div>

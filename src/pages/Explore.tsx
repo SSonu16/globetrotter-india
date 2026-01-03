@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import {
   Globe,
   Search,
-  Filter,
   MapPin,
   Star,
   TrendingUp,
@@ -12,88 +11,124 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import parisDest from "@/assets/destination-paris.jpg";
-import tokyoDest from "@/assets/destination-tokyo.jpg";
-import baliDest from "@/assets/destination-bali.jpg";
+import jaipurDest from "@/assets/destination-jaipur.jpg";
+import keralaDest from "@/assets/destination-kerala.jpg";
+import varanasiDest from "@/assets/destination-varanasi.jpg";
+import goaDest from "@/assets/destination-goa.jpg";
+import ladakhDest from "@/assets/destination-ladakh.jpg";
+import heroIndia from "@/assets/hero-india.jpg";
 
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("all");
 
   const regions = [
-    { id: "all", name: "All" },
-    { id: "europe", name: "Europe" },
-    { id: "asia", name: "Asia" },
-    { id: "americas", name: "Americas" },
-    { id: "oceania", name: "Oceania" },
-    { id: "africa", name: "Africa" },
+    { id: "all", name: "All India" },
+    { id: "north", name: "North" },
+    { id: "south", name: "South" },
+    { id: "east", name: "East" },
+    { id: "west", name: "West" },
+    { id: "central", name: "Central" },
   ];
 
   const destinations = [
     {
       id: 1,
-      name: "Paris",
-      country: "France",
-      region: "europe",
-      image: parisDest,
+      name: "Jaipur",
+      state: "Rajasthan",
+      region: "north",
+      image: jaipurDest,
       rating: 4.9,
-      avgCost: 2500,
+      avgCost: 18000,
       popularity: "Very High",
-      costIndex: "High",
-    },
-    {
-      id: 2,
-      name: "Tokyo",
-      country: "Japan",
-      region: "asia",
-      image: tokyoDest,
-      rating: 4.8,
-      avgCost: 3200,
-      popularity: "Very High",
-      costIndex: "High",
-    },
-    {
-      id: 3,
-      name: "Bali",
-      country: "Indonesia",
-      region: "asia",
-      image: baliDest,
-      rating: 4.7,
-      avgCost: 1800,
-      popularity: "High",
       costIndex: "Medium",
     },
     {
-      id: 4,
-      name: "Barcelona",
-      country: "Spain",
-      region: "europe",
-      image: parisDest,
+      id: 2,
+      name: "Kerala Backwaters",
+      state: "Kerala",
+      region: "south",
+      image: keralaDest,
+      rating: 4.8,
+      avgCost: 25000,
+      popularity: "Very High",
+      costIndex: "Medium",
+    },
+    {
+      id: 3,
+      name: "Varanasi",
+      state: "Uttar Pradesh",
+      region: "north",
+      image: varanasiDest,
       rating: 4.7,
-      avgCost: 2200,
+      avgCost: 12000,
       popularity: "High",
+      costIndex: "Low",
+    },
+    {
+      id: 4,
+      name: "Goa",
+      state: "Goa",
+      region: "west",
+      image: goaDest,
+      rating: 4.8,
+      avgCost: 20000,
+      popularity: "Very High",
       costIndex: "Medium",
     },
     {
       id: 5,
-      name: "New York",
-      country: "USA",
-      region: "americas",
-      image: tokyoDest,
-      rating: 4.6,
-      avgCost: 3500,
-      popularity: "Very High",
-      costIndex: "Very High",
+      name: "Ladakh",
+      state: "Ladakh",
+      region: "north",
+      image: ladakhDest,
+      rating: 4.9,
+      avgCost: 45000,
+      popularity: "High",
+      costIndex: "High",
     },
     {
       id: 6,
-      name: "Sydney",
-      country: "Australia",
-      region: "oceania",
-      image: baliDest,
-      rating: 4.7,
-      avgCost: 2800,
+      name: "Agra",
+      state: "Uttar Pradesh",
+      region: "north",
+      image: heroIndia,
+      rating: 4.9,
+      avgCost: 10000,
+      popularity: "Very High",
+      costIndex: "Low",
+    },
+    {
+      id: 7,
+      name: "Udaipur",
+      state: "Rajasthan",
+      region: "north",
+      image: jaipurDest,
+      rating: 4.8,
+      avgCost: 22000,
       popularity: "High",
+      costIndex: "Medium",
+    },
+    {
+      id: 8,
+      name: "Rishikesh",
+      state: "Uttarakhand",
+      region: "north",
+      image: ladakhDest,
+      rating: 4.6,
+      avgCost: 15000,
+      popularity: "High",
+      costIndex: "Low",
+    },
+    {
+      id: 9,
+      name: "Mumbai",
+      state: "Maharashtra",
+      region: "west",
+      image: goaDest,
+      rating: 4.5,
+      avgCost: 25000,
+      popularity: "Very High",
       costIndex: "High",
     },
   ];
@@ -101,7 +136,7 @@ const Explore = () => {
   const filteredDestinations = destinations.filter((dest) => {
     const matchesSearch =
       dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dest.country.toLowerCase().includes(searchQuery.toLowerCase());
+      dest.state.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRegion = selectedRegion === "all" || dest.region === selectedRegion;
     return matchesSearch && matchesRegion;
   });
@@ -130,10 +165,10 @@ const Explore = () => {
           transition={{ duration: 0.6 }}
         >
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
-            Explore Destinations
+            Explore India
           </h1>
           <p className="text-muted-foreground mb-8">
-            Discover amazing places to visit and add them to your trips.
+            Discover amazing destinations across Incredible India and add them to your trips.
           </p>
 
           {/* Search & Filter */}
@@ -141,7 +176,7 @@ const Explore = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
-                placeholder="Search destinations..."
+                placeholder="Search destinations, states..."
                 className="pl-10 h-12"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -190,12 +225,12 @@ const Explore = () => {
                       </h3>
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
-                        {dest.country}
+                        {dest.state}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">From</p>
-                      <p className="font-semibold text-primary">${dest.avgCost}</p>
+                      <p className="font-semibold text-primary">₹{dest.avgCost.toLocaleString('en-IN')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 text-sm">

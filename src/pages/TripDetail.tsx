@@ -20,69 +20,71 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import parisDest from "@/assets/destination-paris.jpg";
+import jaipurDest from "@/assets/destination-jaipur.jpg";
 
 const TripDetail = () => {
   const { id } = useParams();
   const [expandedDay, setExpandedDay] = useState<number | null>(1);
 
-  // Mock trip data
+  // Mock trip data - Rajasthan
   const trip = {
     id: 1,
-    name: "European Adventure",
+    name: "Rajasthan Royal Tour",
     startDate: "Mar 15, 2025",
-    endDate: "Apr 2, 2025",
-    description: "A wonderful journey through the heart of Europe, exploring iconic landmarks and hidden gems.",
-    coverImage: parisDest,
-    budget: 5000,
-    spent: 2340,
+    endDate: "Mar 25, 2025",
+    description: "A majestic journey through the land of kings, exploring forts, palaces, and vibrant culture.",
+    coverImage: jaipurDest,
+    budget: 45000,
+    spent: 18000,
     cities: [
-      { name: "Paris", country: "France", days: 4 },
-      { name: "Rome", country: "Italy", days: 5 },
-      { name: "Barcelona", country: "Spain", days: 5 },
+      { name: "Jaipur", state: "Rajasthan", days: 3 },
+      { name: "Udaipur", state: "Rajasthan", days: 3 },
+      { name: "Jodhpur", state: "Rajasthan", days: 4 },
     ],
     itinerary: [
       {
         day: 1,
         date: "Mar 15",
-        city: "Paris",
+        city: "Jaipur",
         activities: [
-          { time: "09:00", name: "Arrival at CDG Airport", duration: "2h", cost: 0 },
-          { time: "12:00", name: "Check-in at Hotel Le Marais", duration: "1h", cost: 180 },
-          { time: "14:00", name: "Lunch at Café de Flore", duration: "1.5h", cost: 45 },
-          { time: "16:00", name: "Walk along Seine River", duration: "2h", cost: 0 },
-          { time: "19:00", name: "Dinner at Le Petit Cler", duration: "2h", cost: 65 },
+          { time: "09:00", name: "Arrival at Jaipur Airport", duration: "1h", cost: 0 },
+          { time: "11:00", name: "Check-in at Hotel Narain Niwas", duration: "1h", cost: 4500 },
+          { time: "13:00", name: "Lunch at Laxmi Misthan Bhandar", duration: "1.5h", cost: 500 },
+          { time: "15:00", name: "City Palace Visit", duration: "3h", cost: 500 },
+          { time: "19:00", name: "Dinner at Chokhi Dhani", duration: "3h", cost: 1200 },
         ],
       },
       {
         day: 2,
         date: "Mar 16",
-        city: "Paris",
+        city: "Jaipur",
         activities: [
-          { time: "09:00", name: "Eiffel Tower Visit", duration: "3h", cost: 28 },
-          { time: "13:00", name: "Lunch at Champ de Mars", duration: "1h", cost: 25 },
-          { time: "15:00", name: "Louvre Museum", duration: "4h", cost: 17 },
-          { time: "20:00", name: "Seine River Cruise", duration: "1.5h", cost: 45 },
+          { time: "06:00", name: "Sunrise at Amber Fort", duration: "4h", cost: 200 },
+          { time: "11:00", name: "Hawa Mahal Visit", duration: "1.5h", cost: 50 },
+          { time: "13:00", name: "Lunch at Tapri Central", duration: "1h", cost: 400 },
+          { time: "15:00", name: "Jantar Mantar Observatory", duration: "2h", cost: 200 },
+          { time: "18:00", name: "Shopping at Johari Bazaar", duration: "2h", cost: 2000 },
         ],
       },
       {
         day: 3,
         date: "Mar 17",
-        city: "Paris",
+        city: "Jaipur",
         activities: [
-          { time: "10:00", name: "Montmartre & Sacré-Cœur", duration: "3h", cost: 0 },
-          { time: "14:00", name: "Lunch at Pink Mamma", duration: "1.5h", cost: 40 },
-          { time: "16:00", name: "Musée d'Orsay", duration: "3h", cost: 16 },
+          { time: "09:00", name: "Nahargarh Fort Trek", duration: "3h", cost: 200 },
+          { time: "13:00", name: "Lunch at Suvarna Mahal", duration: "2h", cost: 1500 },
+          { time: "16:00", name: "Jal Mahal Photo Stop", duration: "1h", cost: 0 },
+          { time: "18:00", name: "Depart to Udaipur by Train", duration: "6h", cost: 800 },
         ],
       },
     ],
   };
 
   const budgetCategories = [
-    { label: "Transport", amount: 800, percentage: 34 },
-    { label: "Accommodation", amount: 900, percentage: 38 },
-    { label: "Activities", amount: 350, percentage: 15 },
-    { label: "Food", amount: 290, percentage: 13 },
+    { label: "Transport", amount: 6000, percentage: 33 },
+    { label: "Accommodation", amount: 7000, percentage: 39 },
+    { label: "Activities", amount: 2500, percentage: 14 },
+    { label: "Food", amount: 2500, percentage: 14 },
   ];
 
   return (
@@ -140,7 +142,7 @@ const TripDetail = () => {
               </span>
               <span className="flex items-center gap-1">
                 <DollarSign className="w-4 h-4" />
-                ${trip.budget} budget
+                ₹{trip.budget.toLocaleString('en-IN')} budget
               </span>
             </div>
           </div>
@@ -254,7 +256,7 @@ const TripDetail = () => {
                               {activity.cost > 0 && (
                                 <span className="flex items-center gap-1">
                                   <DollarSign className="w-3 h-3" />
-                                  {activity.cost}
+                                  ₹{activity.cost.toLocaleString('en-IN')}
                                 </span>
                               )}
                             </div>
@@ -293,7 +295,7 @@ const TripDetail = () => {
                     <div className="flex justify-between mb-2">
                       <span className="text-muted-foreground">Total Spent</span>
                       <span className="font-semibold text-foreground">
-                        ${trip.spent} / ${trip.budget}
+                        ₹{trip.spent.toLocaleString('en-IN')} / ₹{trip.budget.toLocaleString('en-IN')}
                       </span>
                     </div>
                     <Progress value={(trip.spent / trip.budget) * 100} className="h-3" />
@@ -302,13 +304,13 @@ const TripDetail = () => {
                     <div className="p-4 bg-secondary/30 rounded-xl">
                       <p className="text-sm text-muted-foreground mb-1">Remaining</p>
                       <p className="font-display text-2xl font-bold text-success">
-                        ${trip.budget - trip.spent}
+                        ₹{(trip.budget - trip.spent).toLocaleString('en-IN')}
                       </p>
                     </div>
                     <div className="p-4 bg-secondary/30 rounded-xl">
                       <p className="text-sm text-muted-foreground mb-1">Avg. Per Day</p>
                       <p className="font-display text-2xl font-bold text-foreground">
-                        ${Math.round(trip.spent / 14)}
+                        ₹{Math.round(trip.spent / 10).toLocaleString('en-IN')}
                       </p>
                     </div>
                   </div>
@@ -330,7 +332,7 @@ const TripDetail = () => {
                     <div key={category.label}>
                       <div className="flex justify-between mb-2">
                         <span className="text-foreground">{category.label}</span>
-                        <span className="font-semibold text-foreground">${category.amount}</span>
+                        <span className="font-semibold text-foreground">₹{category.amount.toLocaleString('en-IN')}</span>
                       </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
@@ -367,7 +369,7 @@ const TripDetail = () => {
                 No photos yet
               </h3>
               <p className="text-muted-foreground mb-6">
-                Add photos from your trip to create lasting memories.
+                Add photos from your Rajasthan trip to create lasting memories.
               </p>
               <Button className="btn-gradient">
                 <Plus className="w-4 h-4 mr-2" />
