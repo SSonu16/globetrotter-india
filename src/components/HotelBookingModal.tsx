@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Building, Calendar, Users, Star, CheckCircle } from "lucide-react";
+import { Building, Calendar, Users, Star, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,138 +34,113 @@ const HotelBookingModal = ({ isOpen, onClose, hotel, placeName }: HotelBookingMo
     checkOut: "",
     guests: "2",
     rooms: "1",
-    name: "",
-    email: "",
-    phone: "",
   });
-  const [isBooking, setIsBooking] = useState(false);
-  const [bookingConfirmed, setBookingConfirmed] = useState(false);
 
-  if (!hotel) return null;
-
-  const calculateNights = () => {
-    if (!formData.checkIn || !formData.checkOut) return 0;
-    const start = new Date(formData.checkIn);
-    const end = new Date(formData.checkOut);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
-  const nights = calculateNights();
-  const totalPrice = nights * hotel.pricePerNight * parseInt(formData.rooms);
-
-  const handleBooking = async () => {
-    if (!formData.checkIn || !formData.checkOut || !formData.name || !formData.email || !formData.phone) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (nights <= 0) {
-      toast({
-        title: "Invalid Dates",
-        description: "Check-out must be after check-in date",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsBooking(true);
+  const handleBookOnAgoda = () => {
+    const destination = encodeURIComponent(placeName);
+    const checkIn = formData.checkIn || new Date().toISOString().split('T')[0];
+    const checkOut = formData.checkOut || new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    const guests = formData.guests || "2";
+    const rooms = formData.rooms || "1";
     
-    // Simulate booking process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsBooking(false);
-    setBookingConfirmed(true);
+    // Agoda hotel search URL
+    const agodaUrl = `https://www.agoda.com/search?city=${destination}&checkIn=${checkIn}&checkOut=${checkOut}&rooms=${rooms}&adults=${guests}&children=0`;
     
     toast({
-      title: "Booking Confirmed!",
-      description: `Your stay at ${hotel.name} has been booked.`,
+      title: "Opening Agoda",
+      description: `Searching hotels in ${placeName}...`,
     });
+    
+    window.open(agodaUrl, "_blank", "noopener,noreferrer");
   };
 
-  const handleClose = () => {
-    setBookingConfirmed(false);
-    setFormData({
-      checkIn: "",
-      checkOut: "",
-      guests: "2",
-      rooms: "1",
-      name: "",
-      email: "",
-      phone: "",
+  const handleBookOnMakeMyTrip = () => {
+    const destination = encodeURIComponent(placeName);
+    const checkIn = formData.checkIn || new Date().toISOString().split('T')[0];
+    const checkOut = formData.checkOut || new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    const guests = formData.guests || "2";
+    const rooms = formData.rooms || "1";
+    
+    // Format dates for MakeMyTrip (MMDDYYYY)
+    const formatMMT = (dateStr: string) => {
+      const [year, month, day] = dateStr.split("-");
+      return `${month}${day}${year}`;
+    };
+    
+    const makeMyTripUrl = `https://www.makemytrip.com/hotels/hotel-listing/?checkin=${formatMMT(checkIn)}&checkout=${formatMMT(checkOut)}&city=${destination}&country=IN&roomStayQualifier=${rooms}e${guests}e0e`;
+    
+    toast({
+      title: "Opening MakeMyTrip",
+      description: `Searching hotels in ${placeName}...`,
     });
-    onClose();
+    
+    window.open(makeMyTripUrl, "_blank", "noopener,noreferrer");
   };
 
-  if (bookingConfirmed) {
-    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-md">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-8"
-          >
-            <div className="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-success" />
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Booking Confirmed!</h2>
-            <p className="text-muted-foreground mb-4">
-              Your reservation at {hotel.name} has been confirmed.
-            </p>
-            <div className="bg-muted/50 rounded-lg p-4 text-left mb-6">
-              <p className="text-sm mb-1"><strong>Check-in:</strong> {formData.checkIn}</p>
-              <p className="text-sm mb-1"><strong>Check-out:</strong> {formData.checkOut}</p>
-              <p className="text-sm mb-1"><strong>Rooms:</strong> {formData.rooms}</p>
-              <p className="text-sm mb-1"><strong>Total:</strong> ₹{totalPrice.toLocaleString("en-IN")}</p>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Confirmation email sent to {formData.email}
-            </p>
-            <Button onClick={handleClose} className="btn-gradient">
-              Done
-            </Button>
-          </motion.div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+  const handleBookOnBooking = () => {
+    const destination = encodeURIComponent(placeName + ", India");
+    const checkIn = formData.checkIn || new Date().toISOString().split('T')[0];
+    const checkOut = formData.checkOut || new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    const guests = formData.guests || "2";
+    const rooms = formData.rooms || "1";
+    
+    const bookingUrl = `https://www.booking.com/searchresults.html?ss=${destination}&checkin=${checkIn}&checkout=${checkOut}&group_adults=${guests}&no_rooms=${rooms}&group_children=0`;
+    
+    toast({
+      title: "Opening Booking.com",
+      description: `Searching hotels in ${placeName}...`,
+    });
+    
+    window.open(bookingUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleBookOnOyo = () => {
+    const destination = encodeURIComponent(placeName);
+    const checkIn = formData.checkIn || new Date().toISOString().split('T')[0];
+    const checkOut = formData.checkOut || new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    
+    const oyoUrl = `https://www.oyorooms.com/search?location=${destination}&checkin=${checkIn}&checkout=${checkOut}`;
+    
+    toast({
+      title: "Opening OYO Rooms",
+      description: `Searching budget hotels in ${placeName}...`,
+    });
+    
+    window.open(oyoUrl, "_blank", "noopener,noreferrer");
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Building className="w-5 h-5 text-primary" />
-            Book {hotel.name}
+            Book Hotels in {placeName}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Hotel Info */}
-          <div className="bg-muted/50 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold">{hotel.name}</h3>
-              <div className="flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full">
-                <Star className="w-3 h-3 text-warning fill-warning" />
-                <span className="text-sm font-medium">{hotel.rating}</span>
+          {/* Hotel Info if provided */}
+          {hotel && (
+            <div className="bg-muted/50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold">{hotel.name}</h3>
+                <div className="flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full">
+                  <Star className="w-3 h-3 text-warning fill-warning" />
+                  <span className="text-sm font-medium">{hotel.rating}</span>
+                </div>
               </div>
+              <p className="text-sm text-muted-foreground mb-2">{placeName} • {hotel.distance}</p>
+              <p className="text-lg font-bold text-primary">
+                ₹{hotel.pricePerNight.toLocaleString("en-IN")} <span className="text-sm font-normal text-muted-foreground">per night</span>
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground mb-2">{placeName} • {hotel.distance}</p>
-            <p className="text-lg font-bold text-primary">
-              ₹{hotel.pricePerNight.toLocaleString("en-IN")} <span className="text-sm font-normal text-muted-foreground">per night</span>
-            </p>
-          </div>
+          )}
 
           {/* Booking Form */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Check-in Date *</Label>
+              <Label>Check-in Date</Label>
               <Input
                 type="date"
                 value={formData.checkIn}
@@ -173,7 +148,7 @@ const HotelBookingModal = ({ isOpen, onClose, hotel, placeName }: HotelBookingMo
               />
             </div>
             <div className="space-y-2">
-              <Label>Check-out Date *</Label>
+              <Label>Check-out Date</Label>
               <Input
                 type="date"
                 value={formData.checkOut}
@@ -202,58 +177,86 @@ const HotelBookingModal = ({ isOpen, onClose, hotel, placeName }: HotelBookingMo
             </div>
           </div>
 
+          {/* Booking Options */}
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Full Name *</Label>
-              <Input
-                placeholder="Enter your full name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Email *</Label>
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Phone Number *</Label>
-              <Input
-                type="tel"
-                placeholder="Enter your phone number"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
+            <h3 className="font-semibold text-lg">Book on Popular Sites</h3>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  onClick={handleBookOnAgoda}
+                  className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
+                >
+                  <span className="font-bold">Agoda</span>
+                  <span className="text-xs opacity-90 flex items-center gap-1">
+                    Best Deals <ExternalLink className="w-3 h-3" />
+                  </span>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  onClick={handleBookOnMakeMyTrip}
+                  className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                >
+                  <span className="font-bold">MakeMyTrip</span>
+                  <span className="text-xs opacity-90 flex items-center gap-1">
+                    Domestic Hotels <ExternalLink className="w-3 h-3" />
+                  </span>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  onClick={handleBookOnBooking}
+                  className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-gradient-to-r from-blue-700 to-blue-500 hover:from-blue-800 hover:to-blue-600"
+                >
+                  <span className="font-bold">Booking.com</span>
+                  <span className="text-xs opacity-90 flex items-center gap-1">
+                    Global Selection <ExternalLink className="w-3 h-3" />
+                  </span>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  onClick={handleBookOnOyo}
+                  className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-gradient-to-r from-red-600 to-red-400 hover:from-red-700 hover:to-red-500"
+                >
+                  <span className="font-bold">OYO Rooms</span>
+                  <span className="text-xs opacity-90 flex items-center gap-1">
+                    Budget Stays <ExternalLink className="w-3 h-3" />
+                  </span>
+                </Button>
+              </motion.div>
             </div>
           </div>
 
-          {/* Price Summary */}
-          {nights > 0 && (
-            <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
-              <h4 className="font-semibold mb-2">Price Summary</h4>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span>₹{hotel.pricePerNight.toLocaleString("en-IN")} × {nights} nights × {formData.rooms} room(s)</span>
-                </div>
-                <div className="flex justify-between font-bold text-lg pt-2 border-t mt-2">
-                  <span>Total</span>
-                  <span className="text-primary">₹{totalPrice.toLocaleString("en-IN")}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <Button
-            onClick={handleBooking}
-            className="w-full btn-gradient"
-            disabled={isBooking}
-          >
-            {isBooking ? "Processing..." : "Confirm Booking"}
-          </Button>
+          {/* Tips */}
+          <div className="bg-muted/50 rounded-lg p-4 border border-border">
+            <h4 className="font-medium mb-2 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Booking Tips
+            </h4>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li>• Compare prices across all platforms</li>
+              <li>• Check for member-only discounts</li>
+              <li>• Read recent reviews before booking</li>
+              <li>• Look for free cancellation options</li>
+            </ul>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
