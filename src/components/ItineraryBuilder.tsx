@@ -18,6 +18,12 @@ import {
   Bed,
   ShoppingBag,
   Mountain,
+  Download,
+  Share2,
+  Mail,
+  MessageCircle,
+  Copy,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,10 +40,17 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useItinerary, ItineraryItem } from "@/hooks/useItinerary";
 import { format, addDays, parseISO } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
 
 interface ItineraryBuilderProps {
   tripId: string;
@@ -58,6 +71,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
   accommodation: <Bed className="w-4 h-4" />,
   shopping: <ShoppingBag className="w-4 h-4" />,
   adventure: <Mountain className="w-4 h-4" />,
+  cultural: <Camera className="w-4 h-4" />,
   activity: <Clock className="w-4 h-4" />,
 };
 
@@ -68,6 +82,7 @@ const categoryColors: Record<string, string> = {
   accommodation: "bg-green-500/10 text-green-500",
   shopping: "bg-pink-500/10 text-pink-500",
   adventure: "bg-red-500/10 text-red-500",
+  cultural: "bg-amber-500/10 text-amber-500",
   activity: "bg-primary/10 text-primary",
 };
 
@@ -93,9 +108,12 @@ const ItineraryBuilder = ({
     getItemsByDay,
   } = useItinerary(tripId);
 
+  const { toast } = useToast();
   const [expandedDays, setExpandedDays] = useState<Set<number>>(new Set([1]));
   const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<ItineraryItem>>({});
   const [isAddingItem, setIsAddingItem] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
   const [newItem, setNewItem] = useState({
     time_slot: "",
     title: "",
@@ -130,16 +148,19 @@ const ItineraryBuilder = ({
   };
 
   const handleGenerateAI = async () => {
-    await generateAIItinerary({
+    const result = await generateAIItinerary({
       tripName,
       startDate,
       endDate,
       budget,
       description: description || undefined,
     });
-    // Expand all days after generation
-    const allDays = new Set(Array.from({ length: tripDuration }, (_, i) => i + 1));
-    setExpandedDays(allDays);
+    
+    if (!result.error) {
+      // Expand all days after generation
+      const allDays = new Set(Array.from({ length: tripDuration }, (_, i) => i + 1));
+      setExpandedDays(allDays);
+    }
   };
 
   const handleAddItem = async (dayNumber: number) => {
@@ -167,11 +188,40 @@ const ItineraryBuilder = ({
         category: "activity",
       });
       setIsAddingItem(null);
+      toast({ title: "Activity added successfully!" });
     }
+  };
+
+  const handleEditItem = (item: ItineraryItem) => {
+    setEditingItem(item.id);
+    setEditForm({
+      time_slot: item.time_slot,
+      title: item.title,
+      description: item.description,
+      location: item.location,
+      estimated_cost: item.estimated_cost,
+      duration_minutes: item.duration_minutes,
+      category: item.category,
+    });
+  };
+
+  const handleSaveEdit = async (itemId: string) => {
+    const { error } = await updateItem(itemId, editForm);
+    if (!error) {
+      setEditingItem(null);
+      setEditForm({});
+      toast({ title: "Activity updated successfully!" });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingItem(null);
+    setEditForm({});
   };
 
   const handleDeleteItem = async (itemId: string) => {
     await deleteItem(itemId);
+    toast({ title: "Activity deleted" });
   };
 
   const getDayDate = (dayNumber: number) => {
@@ -187,6 +237,138 @@ const ItineraryBuilder = ({
     return items.reduce((sum, item) => sum + Number(item.estimated_cost || 0), 0);
   };
 
+  // Export as PDF
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text(tripName, 20, 20);
+    
+    // Trip details
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${format(parseISO(startDate), "MMM d, yyyy")} - ${format(parseISO(endDate), "MMM d, yyyy")}`, 20, 30);
+    doc.text(`Total Budget: Rs. ${budget?.toLocaleString("en-IN") || "N/A"}`, 20, 38);
+    doc.text(`Estimated Cost: Rs. ${getTotalCost().toLocaleString("en-IN")}`, 20, 46);
+    
+    let yPos = 60;
+    
+    // Iterate through days
+    for (let day = 1; day <= tripDuration; day++) {
+      const dayItems = itemsByDay[day] || [];
+      
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      // Day header
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text(`Day ${day} - ${getDayDate(day)}`, 20, yPos);
+      yPos += 8;
+      
+      if (dayItems.length === 0) {
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "italic");
+        doc.text("No activities planned", 25, yPos);
+        yPos += 12;
+      } else {
+        dayItems.forEach((item) => {
+          if (yPos > 270) {
+            doc.addPage();
+            yPos = 20;
+          }
+          
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "bold");
+          const timeText = item.time_slot ? `${item.time_slot} - ` : "";
+          doc.text(`${timeText}${item.title}`, 25, yPos);
+          yPos += 6;
+          
+          doc.setFontSize(9);
+          doc.setFont("helvetica", "normal");
+          if (item.location) {
+            doc.text(`Location: ${item.location}`, 30, yPos);
+            yPos += 5;
+          }
+          if (item.description) {
+            const descLines = doc.splitTextToSize(item.description, 150);
+            doc.text(descLines, 30, yPos);
+            yPos += descLines.length * 4;
+          }
+          if (item.estimated_cost && item.estimated_cost > 0) {
+            doc.text(`Cost: Rs. ${Number(item.estimated_cost).toLocaleString("en-IN")}`, 30, yPos);
+            yPos += 5;
+          }
+          yPos += 4;
+        });
+      }
+      yPos += 6;
+    }
+    
+    // Save PDF
+    doc.save(`${tripName.replace(/\s+/g, "_")}_Itinerary.pdf`);
+    toast({ title: "PDF downloaded successfully!" });
+  };
+
+  // Generate shareable text
+  const getShareableText = () => {
+    let text = `🌍 ${tripName}\n`;
+    text += `📅 ${format(parseISO(startDate), "MMM d")} - ${format(parseISO(endDate), "MMM d, yyyy")}\n`;
+    text += `💰 Budget: ₹${budget?.toLocaleString("en-IN") || "N/A"}\n\n`;
+    
+    for (let day = 1; day <= tripDuration; day++) {
+      const dayItems = itemsByDay[day] || [];
+      text += `📍 Day ${day} - ${getDayDate(day)}\n`;
+      
+      if (dayItems.length === 0) {
+        text += "   No activities planned\n";
+      } else {
+        dayItems.forEach((item) => {
+          const time = item.time_slot ? `${item.time_slot} ` : "";
+          text += `   ${time}${item.title}`;
+          if (item.location) text += ` @ ${item.location}`;
+          if (item.estimated_cost && item.estimated_cost > 0) text += ` (₹${item.estimated_cost})`;
+          text += "\n";
+        });
+      }
+      text += "\n";
+    }
+    
+    text += `Total Estimated: ₹${getTotalCost().toLocaleString("en-IN")}`;
+    return text;
+  };
+
+  // Share via WhatsApp
+  const handleShareWhatsApp = () => {
+    const text = encodeURIComponent(getShareableText());
+    window.open(`https://wa.me/?text=${text}`, "_blank");
+    toast({ title: "Opening WhatsApp..." });
+  };
+
+  // Share via Email
+  const handleShareEmail = () => {
+    const subject = encodeURIComponent(`Trip Itinerary: ${tripName}`);
+    const body = encodeURIComponent(getShareableText());
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    toast({ title: "Opening email client..." });
+  };
+
+  // Copy to clipboard
+  const handleCopyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(getShareableText());
+      setCopied(true);
+      toast({ title: "Copied to clipboard!" });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast({ title: "Failed to copy", variant: "destructive" });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -197,33 +379,66 @@ const ItineraryBuilder = ({
 
   return (
     <div className="space-y-6">
-      {/* Header with AI Generate Button */}
+      {/* Header with Actions */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="font-display text-xl font-semibold text-foreground">
             Trip Itinerary
           </h2>
           <p className="text-muted-foreground text-sm">
-            {items.length} activities planned • ₹{getTotalCost().toLocaleString('en-IN')} estimated
+            {items.length} activities planned • ₹{getTotalCost().toLocaleString("en-IN")} estimated
           </p>
         </div>
-        <Button
-          onClick={handleGenerateAI}
-          disabled={generating}
-          className="btn-gradient"
-        >
-          {generating ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Generating...
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate AI Itinerary
-            </>
-          )}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Share Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleShareWhatsApp}>
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Share via WhatsApp
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleShareEmail}>
+                <Mail className="w-4 h-4 mr-2" />
+                Share via Email
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleCopyToClipboard}>
+                {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                {copied ? "Copied!" : "Copy to Clipboard"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          {/* Export PDF */}
+          <Button variant="outline" size="sm" onClick={handleExportPDF}>
+            <Download className="w-4 h-4 mr-2" />
+            Export PDF
+          </Button>
+          
+          {/* Generate AI */}
+          <Button
+            onClick={handleGenerateAI}
+            disabled={generating}
+            className="btn-gradient"
+          >
+            {generating ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Generate AI Itinerary
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Days List */}
@@ -267,7 +482,7 @@ const ItineraryBuilder = ({
                       {dayItems.length} activities
                     </p>
                     <p className="text-sm font-medium text-foreground">
-                      ₹{dayTotalCost.toLocaleString('en-IN')}
+                      ₹{dayTotalCost.toLocaleString("en-IN")}
                     </p>
                   </div>
                   {isExpanded ? (
@@ -309,54 +524,135 @@ const ItineraryBuilder = ({
                             >
                               {categoryIcons[item.category] || categoryIcons.activity}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2">
-                                <div>
-                                  <p className="font-medium text-foreground">
-                                    {item.title}
-                                  </p>
-                                  {item.description && (
-                                    <p className="text-sm text-muted-foreground line-clamp-2">
-                                      {item.description}
+                            
+                            {editingItem === item.id ? (
+                              // Edit Mode
+                              <div className="flex-1 space-y-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                  <Input
+                                    placeholder="Title"
+                                    value={editForm.title || ""}
+                                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                                  />
+                                  <Input
+                                    placeholder="Time (e.g., 9:00 AM)"
+                                    value={editForm.time_slot || ""}
+                                    onChange={(e) => setEditForm({ ...editForm, time_slot: e.target.value })}
+                                  />
+                                </div>
+                                <Textarea
+                                  placeholder="Description"
+                                  value={editForm.description || ""}
+                                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                  rows={2}
+                                />
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                  <Input
+                                    placeholder="Location"
+                                    value={editForm.location || ""}
+                                    onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                                  />
+                                  <Input
+                                    type="number"
+                                    placeholder="Cost"
+                                    value={editForm.estimated_cost || ""}
+                                    onChange={(e) => setEditForm({ ...editForm, estimated_cost: Number(e.target.value) })}
+                                  />
+                                  <Input
+                                    type="number"
+                                    placeholder="Duration (min)"
+                                    value={editForm.duration_minutes || ""}
+                                    onChange={(e) => setEditForm({ ...editForm, duration_minutes: Number(e.target.value) })}
+                                  />
+                                  <Select
+                                    value={editForm.category || "activity"}
+                                    onValueChange={(value) => setEditForm({ ...editForm, category: value })}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="sightseeing">Sightseeing</SelectItem>
+                                      <SelectItem value="food">Food</SelectItem>
+                                      <SelectItem value="transport">Transport</SelectItem>
+                                      <SelectItem value="accommodation">Accommodation</SelectItem>
+                                      <SelectItem value="shopping">Shopping</SelectItem>
+                                      <SelectItem value="adventure">Adventure</SelectItem>
+                                      <SelectItem value="cultural">Cultural</SelectItem>
+                                      <SelectItem value="activity">Activity</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="flex gap-2 justify-end">
+                                  <Button variant="ghost" size="sm" onClick={handleCancelEdit}>
+                                    <X className="w-4 h-4 mr-1" /> Cancel
+                                  </Button>
+                                  <Button size="sm" onClick={() => handleSaveEdit(item.id)}>
+                                    <Save className="w-4 h-4 mr-1" /> Save
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              // View Mode
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <p className="font-medium text-foreground">
+                                      {item.title}
                                     </p>
+                                    {item.description && (
+                                      <p className="text-sm text-muted-foreground line-clamp-2">
+                                        {item.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                      onClick={() => handleEditItem(item)}
+                                    >
+                                      <Edit2 className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-destructive hover:text-destructive"
+                                      onClick={() => handleDeleteItem(item.id)}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                  {item.time_slot && (
+                                    <span className="flex items-center gap-1">
+                                      <Clock className="w-3 h-3" />
+                                      {item.time_slot}
+                                    </span>
+                                  )}
+                                  {item.location && (
+                                    <span className="flex items-center gap-1">
+                                      <MapPin className="w-3 h-3" />
+                                      {item.location}
+                                    </span>
+                                  )}
+                                  {item.estimated_cost > 0 && (
+                                    <span className="flex items-center gap-1">
+                                      <DollarSign className="w-3 h-3" />
+                                      ₹{Number(item.estimated_cost).toLocaleString("en-IN")}
+                                    </span>
+                                  )}
+                                  {item.duration_minutes && (
+                                    <span className="flex items-center gap-1">
+                                      <Clock className="w-3 h-3" />
+                                      {item.duration_minutes} min
+                                    </span>
                                   )}
                                 </div>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-destructive hover:text-destructive"
-                                  onClick={() => handleDeleteItem(item.id)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
                               </div>
-                              <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
-                                {item.time_slot && (
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {item.time_slot}
-                                  </span>
-                                )}
-                                {item.location && (
-                                  <span className="flex items-center gap-1">
-                                    <MapPin className="w-3 h-3" />
-                                    {item.location}
-                                  </span>
-                                )}
-                                {item.estimated_cost > 0 && (
-                                  <span className="flex items-center gap-1">
-                                    <DollarSign className="w-3 h-3" />
-                                    ₹{Number(item.estimated_cost).toLocaleString('en-IN')}
-                                  </span>
-                                )}
-                                {item.duration_minutes && (
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {item.duration_minutes} min
-                                  </span>
-                                )}
-                              </div>
-                            </div>
+                            )}
                           </motion.div>
                         ))
                       )}
@@ -438,6 +734,7 @@ const ItineraryBuilder = ({
                                 <SelectItem value="accommodation">Accommodation</SelectItem>
                                 <SelectItem value="shopping">Shopping</SelectItem>
                                 <SelectItem value="adventure">Adventure</SelectItem>
+                                <SelectItem value="cultural">Cultural</SelectItem>
                                 <SelectItem value="activity">Activity</SelectItem>
                               </SelectContent>
                             </Select>
@@ -454,18 +751,16 @@ const ItineraryBuilder = ({
                             <Button
                               size="sm"
                               onClick={() => handleAddItem(dayNumber)}
-                              disabled={!newItem.title.trim()}
                             >
                               <Save className="w-4 h-4 mr-1" />
-                              Add Activity
+                              Save Activity
                             </Button>
                           </div>
                         </motion.div>
                       ) : (
                         <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full"
+                          variant="outline"
+                          className="w-full border-dashed"
                           onClick={() => setIsAddingItem(dayNumber)}
                         >
                           <Plus className="w-4 h-4 mr-2" />

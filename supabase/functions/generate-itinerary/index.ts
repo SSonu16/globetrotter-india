@@ -15,9 +15,9 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    console.log("Received request body:", JSON.stringify(body));
-    
     const { tripName, destination, startDate, endDate, budget, description } = body;
+    
+    console.log("Processing request:", { tripName, destination, startDate, endDate, budget });
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -27,207 +27,164 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    console.log("API key found, length:", LOVABLE_API_KEY.length);
 
-    // List of Indian destinations and states for matching
+    // List of Indian destinations
     const destinations = [
       'jaipur', 'delhi', 'mumbai', 'goa', 'kerala', 'varanasi', 'agra', 'udaipur',
       'manali', 'shimla', 'ladakh', 'darjeeling', 'ooty', 'mysore', 'hyderabad',
       'chennai', 'kolkata', 'bengaluru', 'bangalore', 'pune', 'rajasthan', 'kashmir',
       'rishikesh', 'haridwar', 'amritsar', 'jaisalmer', 'jodhpur', 'pushkar',
-      'hampi', 'kodaikanal', 'munnar', 'alleppey', 'kovalam', 'kochi', 'cochin',
-      'andhra pradesh', 'arunachal pradesh', 'assam', 'bihar', 'chhattisgarh',
-      'gujarat', 'haryana', 'himachal pradesh', 'jharkhand', 'karnataka',
-      'madhya pradesh', 'maharashtra', 'manipur', 'meghalaya', 'mizoram',
-      'nagaland', 'odisha', 'punjab', 'sikkim', 'tamil nadu', 'telangana',
-      'tripura', 'uttar pradesh', 'uttarakhand', 'west bengal', 'andaman',
-      'gangtok', 'shillong', 'imphal', 'kohima', 'aizawl', 'agartala', 'itanagar',
-      'leh', 'srinagar', 'gulmarg', 'pahalgam', 'nainital', 'mussoorie', 'dehradun',
+      'hampi', 'kodaikanal', 'munnar', 'alleppey', 'kovalam', 'kochi',
+      'andhra', 'arunachal', 'assam', 'bihar', 'chhattisgarh', 'gujarat', 'haryana',
+      'himachal', 'jharkhand', 'karnataka', 'madhya pradesh', 'maharashtra',
+      'manipur', 'meghalaya', 'mizoram', 'nagaland', 'odisha', 'punjab', 'sikkim',
+      'tamil nadu', 'telangana', 'tripura', 'uttar pradesh', 'uttarakhand', 'west bengal',
+      'gangtok', 'shillong', 'imphal', 'kohima', 'aizawl', 'agartala',
+      'leh', 'srinagar', 'gulmarg', 'pahalgam', 'nainital', 'mussoorie',
       'lonavala', 'mahabaleshwar', 'coorg', 'wayanad', 'thekkady', 'pondicherry',
-      'madurai', 'thanjavur', 'mahabalipuram', 'rameswaram', 'kanyakumari',
-      'tirupati', 'visakhapatnam', 'vizag', 'konark', 'puri', 'bhubaneswar',
-      'khajuraho', 'orchha', 'sanchi', 'ujjain', 'indore', 'bhopal',
-      'mount abu', 'rann of kutch', 'kutch', 'dwarka', 'somnath', 'ahmedabad',
-      'vadodara', 'surat', 'aurangabad', 'ajanta', 'ellora', 'nashik', 'shirdi'
+      'madurai', 'thanjavur', 'rameswaram', 'kanyakumari', 'tirupati', 'vizag',
+      'konark', 'puri', 'bhubaneswar', 'khajuraho', 'orchha', 'ujjain', 'bhopal',
+      'mount abu', 'kutch', 'dwarka', 'somnath', 'ahmedabad', 'nashik', 'shirdi', 'andaman'
     ];
     
-    // Extract destination from trip name and description
+    // Find destination
     const combinedText = `${tripName || ''} ${description || ''}`.toLowerCase();
-    console.log("Searching for destination in:", combinedText);
-    
     let inferredDestination = destination;
+    
     if (!inferredDestination) {
       for (const dest of destinations) {
         if (combinedText.includes(dest)) {
-          inferredDestination = dest.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-          console.log("Found destination:", inferredDestination);
+          inferredDestination = dest.charAt(0).toUpperCase() + dest.slice(1);
           break;
         }
       }
-      
-      // Fallback based on keywords
       if (!inferredDestination) {
-        if (combinedText.includes('beach') || combinedText.includes('coastal')) {
-          inferredDestination = 'Goa';
-        } else if (combinedText.includes('mountain') || combinedText.includes('hill') || combinedText.includes('trek')) {
-          inferredDestination = 'Manali';
-        } else if (combinedText.includes('spiritual') || combinedText.includes('temple')) {
-          inferredDestination = 'Varanasi';
-        } else if (combinedText.includes('wildlife') || combinedText.includes('safari')) {
-          inferredDestination = 'Ranthambore';
-        } else {
-          inferredDestination = tripName || 'Delhi';
-        }
-        console.log("Using fallback destination:", inferredDestination);
+        inferredDestination = tripName || 'Delhi';
       }
     }
+    
+    console.log("Destination identified:", inferredDestination);
 
-    // Calculate number of days
+    // Calculate days
     const start = new Date(startDate);
     const end = new Date(endDate);
     const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
-    console.log("Trip duration:", days, "days");
-
-    const budgetStr = budget ? `₹${budget} total` : 'budget-friendly';
+    const budgetPerDay = budget ? Math.floor(budget / days) : 3000;
     
-    const systemPrompt = `You are an expert Indian travel planner. Create practical, budget-conscious day-by-day itineraries. Always respond with ONLY a valid JSON array, no markdown or extra text.`;
+    console.log("Trip days:", days, "Budget per day:", budgetPerDay);
 
-    const userPrompt = `Create a ${days}-day travel itinerary for ${inferredDestination}, India.
+    const prompt = `Create a ${days}-day travel itinerary for ${inferredDestination}, India with budget ₹${budgetPerDay}/day.
 
-Trip: ${tripName}
-Budget: ${budgetStr}
-Notes: ${description || 'Explore the best attractions'}
+Return ONLY a JSON array in this exact format (no other text):
+[{"day":1,"activities":[{"time":"6:00 AM","title":"Morning Temple Visit","description":"Visit the famous temple","location":"Temple Name","cost":50,"duration":90,"category":"sightseeing"}]}]
 
 Requirements:
-- Create exactly ${days} days of activities
-- Include 4-6 activities per day with realistic timings
-- Focus on famous attractions, local food, markets
-- Use budget transport and dining options
-- Include costs in Indian Rupees
+- Exactly ${days} days
+- 5-6 activities per day from 6 AM to 10 PM
+- Include local food, famous spots, markets
+- Categories: sightseeing, food, transport, accommodation, shopping, adventure, cultural
+- Budget-friendly options
+- Costs in Indian Rupees`;
 
-Return ONLY this JSON format (no markdown, no explanation):
-[
-  {
-    "day": 1,
-    "activities": [
-      {
-        "time": "6:00 AM",
-        "title": "Activity name",
-        "description": "Brief description",
-        "location": "Specific place",
-        "cost": 100,
-        "duration": 60,
-        "category": "sightseeing"
-      }
-    ]
-  }
-]
-
-Categories: sightseeing, food, transport, accommodation, shopping, adventure, cultural`;
-
-    console.log("Calling AI gateway for destination:", inferredDestination);
+    console.log("Calling AI API...");
     
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-    });
-
-    console.log("AI response status:", response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI error response:", errorText);
-      
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait a moment and try again." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      
-      return new Response(JSON.stringify({ error: `AI service error (${response.status})` }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await response.json();
-    console.log("AI response received, processing...");
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 55000);
     
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) {
-      console.error("Empty AI response:", JSON.stringify(data));
-      return new Response(JSON.stringify({ error: "Empty response from AI" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    console.log("Raw content length:", content.length);
-    console.log("Content preview:", content.substring(0, 200));
-
-    // Parse JSON from response
-    let itinerary;
     try {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "user", content: prompt },
+          ],
+        }),
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      console.log("AI response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("AI error:", response.status, errorText);
+        
+        if (response.status === 429) {
+          return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait and try again." }), {
+            status: 429,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (response.status === 402) {
+          return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
+            status: 402,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        
+        throw new Error(`AI service error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      
+      if (!content) {
+        console.error("Empty AI response");
+        throw new Error("Empty response from AI");
+      }
+
+      console.log("Parsing AI response, length:", content.length);
+
+      // Parse JSON
+      let itinerary;
       let jsonString = content.trim();
       
-      // Remove markdown code blocks if present
+      // Remove markdown
       if (jsonString.includes('```')) {
         const match = jsonString.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (match) {
-          jsonString = match[1].trim();
-        }
+        if (match) jsonString = match[1].trim();
       }
       
-      // Find JSON array
+      // Find array
       const startIdx = jsonString.indexOf('[');
       const endIdx = jsonString.lastIndexOf(']');
       
-      if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+      if (startIdx !== -1 && endIdx > startIdx) {
         jsonString = jsonString.substring(startIdx, endIdx + 1);
       }
       
-      itinerary = JSON.parse(jsonString);
-      console.log("Successfully parsed itinerary with", itinerary.length, "days");
-      
-      // Validate structure
-      if (!Array.isArray(itinerary) || itinerary.length === 0) {
-        throw new Error("Invalid itinerary structure");
+      try {
+        itinerary = JSON.parse(jsonString);
+        console.log("Parsed", itinerary.length, "days");
+      } catch (e) {
+        console.error("Parse failed:", e);
+        throw new Error("Failed to parse AI response");
       }
-      
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError);
-      console.error("Failed content:", content.substring(0, 500));
-      return new Response(JSON.stringify({ error: "Failed to parse AI response. Please try again." }), {
-        status: 500,
+
+      return new Response(JSON.stringify({ itinerary }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+
+    } catch (fetchError: unknown) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        console.error("Request timed out");
+        return new Response(JSON.stringify({ error: "Request timed out. Please try again." }), {
+          status: 504,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      throw fetchError;
     }
 
-    console.log("Returning successful response");
-    return new Response(JSON.stringify({ itinerary }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-
   } catch (error: unknown) {
-    console.error("Unexpected error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    console.error("Error:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
