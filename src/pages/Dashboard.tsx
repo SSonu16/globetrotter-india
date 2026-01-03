@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -32,6 +32,14 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
   const { trips, loading: tripsLoading } = useTrips();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/explore?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -77,15 +85,17 @@ const Dashboard = () => {
             </span>
           </Link>
 
-          <div className="flex-1 max-w-md mx-4 hidden md:block">
+          <form onSubmit={handleSearch} className="flex-1 max-w-md mx-4 hidden md:block">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search trips, destinations..."
+                placeholder="Search destinations..."
                 className="pl-10 bg-secondary/50"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-          </div>
+          </form>
 
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="relative">
