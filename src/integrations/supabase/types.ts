@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      itinerary_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          day_number: number
+          description: string | null
+          duration_minutes: number | null
+          estimated_cost: number | null
+          id: string
+          location: string | null
+          sort_order: number
+          time_slot: string | null
+          title: string
+          trip_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          day_number: number
+          description?: string | null
+          duration_minutes?: number | null
+          estimated_cost?: number | null
+          id?: string
+          location?: string | null
+          sort_order?: number
+          time_slot?: string | null
+          title: string
+          trip_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          day_number?: number
+          description?: string | null
+          duration_minutes?: number | null
+          estimated_cost?: number | null
+          id?: string
+          location?: string | null
+          sort_order?: number
+          time_slot?: string | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itinerary_items_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
