@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MapPin, Star, Calendar, DollarSign, Heart, Plus, Hotel, IndianRupee, Phone, ExternalLink } from "lucide-react";
+import { X, MapPin, Star, Calendar, DollarSign, Heart, Plus, Hotel, IndianRupee, Phone, ExternalLink, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { TouristPlace } from "@/data/indianDestinations";
@@ -149,6 +149,27 @@ const PlaceDetailModal = ({ place, isOpen, onClose }: PlaceDetailModalProps) => 
                   ))}
                 </div>
               </div>
+
+              {/* Nearest Airport */}
+              {place.airport && (
+                <div className="mb-6">
+                  <h3 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Plane className="w-5 h-5 text-primary" />
+                    Nearest Airport
+                  </h3>
+                  <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-foreground">{place.airport.name}</h4>
+                        <p className="text-sm text-muted-foreground">Code: {place.airport.code}</p>
+                      </div>
+                      <Badge variant="secondary" className="text-sm">
+                        {place.airport.distance} away
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Budget-Friendly Hotels */}
               <div className="mb-6">
