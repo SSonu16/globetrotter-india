@@ -37,7 +37,7 @@ import hyderabadDest from "@/assets/destination-hyderabad.jpg";
 import kolkataDest from "@/assets/destination-kolkata.jpg";
 import darjeelingDest from "@/assets/destination-darjeeling.jpg";
 import gangtokDest from "@/assets/destination-gangtok.jpg";
-// New unique images
+// Unique destination images
 import nubraDest from "@/assets/destination-nubra.jpg";
 import zanskarDest from "@/assets/destination-zanskar.jpg";
 import pahalgamDest from "@/assets/destination-pahalgam.jpg";
@@ -76,7 +76,6 @@ import kazirangaDest from "@/assets/destination-kaziranga.jpg";
 import ranchiDest from "@/assets/destination-ranchi.jpg";
 import chitrakoteDest from "@/assets/destination-chitrakote.jpg";
 import orchhaDest from "@/assets/destination-orchha.jpg";
-// New unique images for duplicate places
 import nalandaDest from "@/assets/destination-nalanda.jpg";
 import rajgirDest from "@/assets/destination-rajgir.jpg";
 import deogharDest from "@/assets/destination-deoghar.jpg";
@@ -95,6 +94,36 @@ import aizawlDest from "@/assets/destination-aizawl.jpg";
 import northGoaDest from "@/assets/destination-north-goa.jpg";
 import southGoaDest from "@/assets/destination-south-goa.jpg";
 import oldGoaDest from "@/assets/destination-old-goa.jpg";
+// New destination images
+import prayagrajDest from "@/assets/destination-prayagraj.jpg";
+import ayodhyaDest from "@/assets/destination-ayodhya.jpg";
+import corbettDest from "@/assets/destination-corbett.jpg";
+import mountAbuDest from "@/assets/destination-mount-abu.jpg";
+import ranthamboreDest from "@/assets/destination-ranthambore.jpg";
+import pondicherryDest from "@/assets/destination-pondicherry.jpg";
+import kodaikanalDest from "@/assets/destination-kodaikanal.jpg";
+import thanjavurDest from "@/assets/destination-thanjavur.jpg";
+import nashikDest from "@/assets/destination-nashik.jpg";
+import shirdiDest from "@/assets/destination-shirdi.jpg";
+import patnaDest from "@/assets/destination-patna.jpg";
+import jamshedpurDest from "@/assets/destination-jamshedpur.jpg";
+import jabalpurDest from "@/assets/destination-jabalpur.jpg";
+import ujjainDest from "@/assets/destination-ujjain.jpg";
+import raipurDest from "@/assets/destination-raipur.jpg";
+import siliguriDest from "@/assets/destination-siliguri.jpg";
+import dighaDest from "@/assets/destination-digha.jpg";
+import dirangDest from "@/assets/destination-dirang.jpg";
+import monDest from "@/assets/destination-mon.jpg";
+import loktakDest from "@/assets/destination-loktak.jpg";
+import unakotiDest from "@/assets/destination-unakoti.jpg";
+import kovalamDest from "@/assets/destination-kovalam.jpg";
+import chettinadDest from "@/assets/destination-chettinad.jpg";
+import badamiDest from "@/assets/destination-badami.jpg";
+import somnathDest from "@/assets/destination-somnath.jpg";
+import diuDest from "@/assets/destination-diu.jpg";
+import mawlynnongDest from "@/assets/destination-mawlynnong.jpg";
+import jorhatDest from "@/assets/destination-jorhat.jpg";
+import tsomgoDest from "@/assets/destination-tsomgo.jpg";
 // State-specific images
 import stateUPDest from "@/assets/state-uttar-pradesh.jpg";
 import stateAPDest from "@/assets/state-andhra-pradesh.jpg";
@@ -215,6 +244,29 @@ export const indianStates: IndianState[] = [
         highlights: ["Brahma Temple", "Pushkar Lake", "Savitri Temple", "Rose Garden", "Pushkar Fair"],
         activities: ["Temple Visit", "Lake Bathing", "Camel Fair", "Shopping", "Yoga Retreats"],
       },
+      {
+        id: "mount-abu",
+        name: "Mount Abu",
+        description: "Only hill station in Rajasthan with beautiful Dilwara Jain Temples and Nakki Lake.",
+        image: mountAbuDest,
+        rating: 4.5,
+        avgCost: 12000,
+        bestTime: "October to March",
+        highlights: ["Dilwara Temples", "Nakki Lake", "Guru Shikhar", "Sunset Point", "Achalgarh Fort"],
+        activities: ["Temple Visit", "Boating", "Trekking", "Wildlife Safari", "Photography"],
+      },
+      {
+        id: "ranthambore",
+        name: "Ranthambore National Park",
+        description: "One of India's best tiger reserves with ancient Ranthambore Fort inside the park.",
+        image: ranthamboreDest,
+        rating: 4.8,
+        avgCost: 18000,
+        bestTime: "October to June",
+        highlights: ["Tiger Safari", "Ranthambore Fort", "Padam Talao", "Jogi Mahal", "Wildlife"],
+        activities: ["Jeep Safari", "Bird Watching", "Fort Exploration", "Photography", "Nature Walk"],
+        airport: { name: "Jaipur International Airport", code: "JAI", distance: "180 km" },
+      },
     ],
   },
   {
@@ -267,6 +319,30 @@ export const indianStates: IndianState[] = [
         bestTime: "August to March",
         highlights: ["Krishna Janmabhoomi", "Banke Bihari Temple", "ISKCON Temple", "Prem Mandir", "Govardhan Hill"],
         activities: ["Temple Darshan", "Holi Festival", "Yamuna Aarti", "Parikrama", "Prasad Tasting"],
+      },
+      {
+        id: "prayagraj",
+        name: "Prayagraj (Allahabad)",
+        description: "Sacred city at the confluence of Ganga, Yamuna and Saraswati rivers, hosting Kumbh Mela.",
+        image: prayagrajDest,
+        rating: 4.6,
+        avgCost: 8000,
+        bestTime: "October to March",
+        highlights: ["Triveni Sangam", "Allahabad Fort", "Anand Bhawan", "Khusro Bagh", "Kumbh Mela"],
+        activities: ["Holy Dip", "Boat Ride", "Heritage Walk", "Museum Visit", "Spiritual Retreat"],
+        airport: { name: "Bamrauli Airport", code: "IXD", distance: "15 km" },
+      },
+      {
+        id: "ayodhya",
+        name: "Ayodhya",
+        description: "Birthplace of Lord Ram, one of the most sacred Hindu pilgrimage sites with Ram Mandir.",
+        image: ayodhyaDest,
+        rating: 4.8,
+        avgCost: 6000,
+        bestTime: "October to March",
+        highlights: ["Ram Mandir", "Hanuman Garhi", "Kanak Bhawan", "Saryu River", "Nageshwarnath Temple"],
+        activities: ["Temple Darshan", "Saryu Aarti", "Heritage Walk", "Diwali Celebration", "Ram Katha"],
+        airport: { name: "Ayodhya Airport", code: "AYJ", distance: "10 km" },
       },
     ],
   },
@@ -331,6 +407,18 @@ export const indianStates: IndianState[] = [
         bestTime: "November to March",
         highlights: ["Skiing Slopes", "Auli Ropeway", "Gurso Bugyal", "Chenab Lake", "Joshimath"],
         activities: ["Skiing", "Snowboarding", "Trekking", "Cable Car", "Photography"],
+      },
+      {
+        id: "jim-corbett",
+        name: "Jim Corbett National Park",
+        description: "India's oldest national park and premier tiger reserve with diverse wildlife.",
+        image: corbettDest,
+        rating: 4.8,
+        avgCost: 18000,
+        bestTime: "November to June",
+        highlights: ["Tiger Safari", "Dhikala Zone", "Bijrani Zone", "Corbett Museum", "Kosi River"],
+        activities: ["Jeep Safari", "Elephant Safari", "Bird Watching", "Nature Walk", "River Rafting"],
+        airport: { name: "Pantnagar Airport", code: "PGH", distance: "80 km" },
       },
     ],
   },
@@ -605,6 +693,18 @@ export const indianStates: IndianState[] = [
         activities: ["Boat Safari", "Jungle Trekking", "Spice Garden Tour", "Elephant Ride", "Martial Arts Show"],
         airport: { name: "Cochin International Airport", code: "COK", distance: "140 km" },
       },
+      {
+        id: "kovalam",
+        name: "Kovalam",
+        description: "Famous beach destination with lighthouse, crescent beaches, and Ayurvedic resorts.",
+        image: kovalamDest,
+        rating: 4.6,
+        avgCost: 20000,
+        bestTime: "September to March",
+        highlights: ["Lighthouse Beach", "Hawa Beach", "Samudra Beach", "Vizhinjam Mosque", "Padmanabhapuram Palace"],
+        activities: ["Beach Activities", "Ayurvedic Treatment", "Surfing", "Sunset Views", "Seafood"],
+        airport: { name: "Trivandrum International Airport", code: "TRV", distance: "15 km" },
+      },
     ],
   },
   {
@@ -669,6 +769,54 @@ export const indianStates: IndianState[] = [
         bestTime: "October to April",
         highlights: ["Ramanathaswamy Temple", "Pamban Bridge", "Dhanushkodi", "Agnitheertham", "Five Faced Hanuman Temple"],
         activities: ["Temple Visit", "Holy Bath", "Scenic Drive", "Ghost Town Visit", "Beach Visit"],
+      },
+      {
+        id: "pondicherry",
+        name: "Pondicherry",
+        description: "French colonial town with colorful streets, beaches, and spiritual Auroville.",
+        image: pondicherryDest,
+        rating: 4.7,
+        avgCost: 14000,
+        bestTime: "October to March",
+        highlights: ["French Quarter", "Auroville", "Promenade Beach", "Sri Aurobindo Ashram", "Paradise Beach"],
+        activities: ["Heritage Walk", "Cafe Hopping", "Scuba Diving", "Meditation", "Cycling"],
+        airport: { name: "Puducherry Airport", code: "PNY", distance: "5 km" },
+      },
+      {
+        id: "kodaikanal",
+        name: "Kodaikanal",
+        description: "Princess of Hill Stations with beautiful lake, waterfalls, and pine forests.",
+        image: kodaikanalDest,
+        rating: 4.6,
+        avgCost: 16000,
+        bestTime: "October to June",
+        highlights: ["Kodaikanal Lake", "Coaker's Walk", "Pillar Rocks", "Bryant Park", "Silver Cascade"],
+        activities: ["Boating", "Cycling", "Trekking", "Horse Riding", "Photography"],
+        airport: { name: "Madurai Airport", code: "IXM", distance: "120 km" },
+      },
+      {
+        id: "thanjavur",
+        name: "Thanjavur",
+        description: "Rice bowl of Tamil Nadu with UNESCO-listed Brihadeeswara Temple and rich Chola heritage.",
+        image: thanjavurDest,
+        rating: 4.7,
+        avgCost: 10000,
+        bestTime: "October to March",
+        highlights: ["Brihadeeswara Temple", "Thanjavur Palace", "Saraswathi Mahal Library", "Art Gallery", "Schwartz Church"],
+        activities: ["Temple Visit", "Art Shopping", "Heritage Walk", "Classical Music", "Bronze Shopping"],
+        airport: { name: "Tiruchirappalli Airport", code: "TRZ", distance: "55 km" },
+      },
+      {
+        id: "chettinad",
+        name: "Chettinad",
+        description: "Region known for palatial mansions, unique cuisine, and traditional architecture.",
+        image: chettinadDest,
+        rating: 4.5,
+        avgCost: 12000,
+        bestTime: "October to March",
+        highlights: ["Chettinad Mansions", "Athangudi Tiles", "Karaikudi", "Pillayarpatti Temple", "Antique Shops"],
+        activities: ["Heritage Walk", "Cooking Class", "Antique Shopping", "Temple Visit", "Photography"],
+        airport: { name: "Madurai Airport", code: "IXM", distance: "90 km" },
       },
     ],
   },
@@ -738,6 +886,18 @@ export const indianStates: IndianState[] = [
         highlights: ["Om Beach", "Kudle Beach", "Mahabaleshwar Temple", "Half Moon Beach", "Paradise Beach"],
         activities: ["Beach Hopping", "Temple Visit", "Trekking", "Water Sports", "Yoga"],
         airport: { name: "Dabolim Airport", code: "GOI", distance: "140 km" },
+      },
+      {
+        id: "badami",
+        name: "Badami",
+        description: "Ancient capital of Chalukya dynasty with stunning rock-cut cave temples.",
+        image: badamiDest,
+        rating: 4.6,
+        avgCost: 10000,
+        bestTime: "October to March",
+        highlights: ["Badami Caves", "Agastya Lake", "Bhutanatha Temples", "Badami Fort", "Archaeological Museum"],
+        activities: ["Cave Exploration", "Heritage Walk", "Photography", "Temple Visit", "Rock Climbing"],
+        airport: { name: "Hubli Airport", code: "HBX", distance: "100 km" },
       },
     ],
   },
@@ -915,6 +1075,30 @@ export const indianStates: IndianState[] = [
         activities: ["Viewpoint Visits", "Boating", "Strawberry Picking", "Horse Riding", "Trekking"],
         airport: { name: "Pune International Airport", code: "PNQ", distance: "120 km" },
       },
+      {
+        id: "nashik",
+        name: "Nashik",
+        description: "Wine capital of India with vineyards, temples, and Kumbh Mela site.",
+        image: nashikDest,
+        rating: 4.5,
+        avgCost: 12000,
+        bestTime: "October to March",
+        highlights: ["Sula Vineyards", "Trimbakeshwar Temple", "Panchvati", "Coin Museum", "Pandavleni Caves"],
+        activities: ["Wine Tasting", "Temple Visit", "Heritage Walk", "Grape Stomping", "Cave Exploration"],
+        airport: { name: "Nashik Airport", code: "ISK", distance: "15 km" },
+      },
+      {
+        id: "shirdi",
+        name: "Shirdi",
+        description: "Pilgrimage town famous for Sai Baba Temple, one of India's most visited shrines.",
+        image: shirdiDest,
+        rating: 4.7,
+        avgCost: 8000,
+        bestTime: "October to March",
+        highlights: ["Sai Baba Temple", "Dwarkamai", "Chavadi", "Gurusthan", "Sai Heritage Village"],
+        activities: ["Temple Darshan", "Aarti", "Heritage Walk", "Prasad", "Spiritual Retreat"],
+        airport: { name: "Shirdi Airport", code: "SAG", distance: "15 km" },
+      },
     ],
   },
   {
@@ -984,6 +1168,30 @@ export const indianStates: IndianState[] = [
         activities: ["Statue Visit", "Valley Walk", "Dam Visit", "Boat Ride", "Evening Show"],
         airport: { name: "Vadodara Airport", code: "BDQ", distance: "90 km" },
       },
+      {
+        id: "somnath",
+        name: "Somnath",
+        description: "First among the 12 Jyotirlingas, ancient shore temple with rich mythology.",
+        image: somnathDest,
+        rating: 4.8,
+        avgCost: 10000,
+        bestTime: "October to March",
+        highlights: ["Somnath Temple", "Bhalka Tirth", "Triveni Sangam", "Prabhas Patan Museum", "Light & Sound Show"],
+        activities: ["Temple Darshan", "Aarti", "Beach Walk", "Sound & Light Show", "Museum Visit"],
+        airport: { name: "Diu Airport", code: "DIU", distance: "85 km" },
+      },
+      {
+        id: "diu",
+        name: "Diu",
+        description: "Former Portuguese colony with pristine beaches, forts, and peaceful vibes.",
+        image: diuDest,
+        rating: 4.5,
+        avgCost: 12000,
+        bestTime: "October to March",
+        highlights: ["Nagoa Beach", "Diu Fort", "St. Paul's Church", "Naida Caves", "Gangeshwar Temple"],
+        activities: ["Beach Activities", "Fort Exploration", "Water Sports", "Church Visit", "Cycling"],
+        airport: { name: "Diu Airport", code: "DIU", distance: "5 km" },
+      },
     ],
   },
   // East India
@@ -1038,6 +1246,30 @@ export const indianStates: IndianState[] = [
         bestTime: "March to May, September to November",
         highlights: ["Deolo Hill", "Zang Dhok Palri Phodang", "Dr. Graham's Homes", "Durpin Dara", "Cactus Nursery"],
         activities: ["Monastery Visit", "Nature Walk", "Paragliding", "Nursery Visit", "Photography"],
+      },
+      {
+        id: "siliguri",
+        name: "Siliguri",
+        description: "Gateway to Northeast India and Himalayan hill stations with tea gardens.",
+        image: siliguriDest,
+        rating: 4.3,
+        avgCost: 10000,
+        bestTime: "October to May",
+        highlights: ["Coronation Bridge", "Mahananda Wildlife Sanctuary", "Kali Temple", "Hong Kong Market", "Salugara Monastery"],
+        activities: ["Wildlife Safari", "Shopping", "Tea Garden Visit", "River Rafting", "Monastery Visit"],
+        airport: { name: "Bagdogra Airport", code: "IXB", distance: "12 km" },
+      },
+      {
+        id: "digha",
+        name: "Digha",
+        description: "Popular beach town with long sandy beaches and seafood on the Bay of Bengal.",
+        image: dighaDest,
+        rating: 4.2,
+        avgCost: 8000,
+        bestTime: "October to March",
+        highlights: ["New Digha Beach", "Old Digha Beach", "Marine Aquarium", "Science Centre", "Chandaneswar Temple"],
+        activities: ["Beach Activities", "Camel Ride", "Seafood", "Beach Hopping", "Temple Visit"],
+        airport: { name: "Netaji Subhas Chandra Bose International Airport", code: "CCU", distance: "185 km" },
       },
     ],
   },
@@ -1127,6 +1359,18 @@ export const indianStates: IndianState[] = [
         highlights: ["Vishwa Shanti Stupa", "Griddhakuta Peak", "Hot Springs", "Venu Vana", "Japanese Temple"],
         activities: ["Ropeway Ride", "Hot Spring Bath", "Meditation", "Hill Trek", "Temple Visit"],
       },
+      {
+        id: "patna",
+        name: "Patna",
+        description: "One of the oldest continuously inhabited cities, capital of ancient Magadha Empire.",
+        image: patnaDest,
+        rating: 4.3,
+        avgCost: 10000,
+        bestTime: "October to March",
+        highlights: ["Golghar", "Patna Museum", "Takht Sri Patna Sahib", "Gandhi Maidan", "Kumhrar"],
+        activities: ["Heritage Walk", "Museum Visit", "River Cruise", "Gurudwara Visit", "Local Cuisine"],
+        airport: { name: "Jay Prakash Narayan International Airport", code: "PAT", distance: "7 km" },
+      },
     ],
   },
   {
@@ -1158,6 +1402,18 @@ export const indianStates: IndianState[] = [
         bestTime: "July-August (Shravan), October to March",
         highlights: ["Baidyanath Temple", "Naulakha Mandir", "Trikut Hills", "Nandan Pahar", "Rikhia Yogashram"],
         activities: ["Temple Darshan", "Shravan Mela", "Hill Trek", "Spiritual Retreat", "Local Markets"],
+      },
+      {
+        id: "jamshedpur",
+        name: "Jamshedpur",
+        description: "India's first planned industrial city with beautiful parks and steel heritage.",
+        image: jamshedpurDest,
+        rating: 4.2,
+        avgCost: 10000,
+        bestTime: "October to March",
+        highlights: ["Jubilee Park", "Dimna Lake", "Dalma Wildlife Sanctuary", "Tata Steel Zoo", "Hudco Lake"],
+        activities: ["Park Visit", "Wildlife Safari", "Boating", "Industrial Tour", "Nature Walk"],
+        airport: { name: "Sonari Airport", code: "IXW", distance: "10 km" },
       },
     ],
   },
@@ -1229,6 +1485,30 @@ export const indianStates: IndianState[] = [
         activities: ["Palace Tour", "River Rafting", "Temple Visit", "Photography", "Heritage Walk"],
         airport: { name: "Gwalior Airport", code: "GWL", distance: "120 km" },
       },
+      {
+        id: "jabalpur",
+        name: "Jabalpur",
+        description: "Gateway to national parks with stunning Bhedaghat marble rocks and waterfalls.",
+        image: jabalpurDest,
+        rating: 4.5,
+        avgCost: 12000,
+        bestTime: "October to March",
+        highlights: ["Bhedaghat Marble Rocks", "Dhuandhar Falls", "Madan Mahal Fort", "Rani Durgavati Museum", "Tilwara Ghat"],
+        activities: ["Boat Ride", "Waterfall Visit", "Fort Exploration", "Cable Car", "Photography"],
+        airport: { name: "Jabalpur Airport", code: "JLR", distance: "20 km" },
+      },
+      {
+        id: "ujjain",
+        name: "Ujjain",
+        description: "One of the seven sacred cities, home to Mahakaleshwar Jyotirlinga and Kumbh Mela.",
+        image: ujjainDest,
+        rating: 4.7,
+        avgCost: 8000,
+        bestTime: "October to March",
+        highlights: ["Mahakaleshwar Temple", "Kal Bhairav Temple", "Ram Ghat", "Vikram Kirti Mandir", "Sandipani Ashram"],
+        activities: ["Temple Darshan", "Bhasm Aarti", "Ghat Visit", "Heritage Walk", "Kumbh Mela"],
+        airport: { name: "Devi Ahilyabai Holkar Airport", code: "IDR", distance: "55 km" },
+      },
     ],
   },
   {
@@ -1249,6 +1529,18 @@ export const indianStates: IndianState[] = [
         highlights: ["Chitrakote Falls", "Tirathgarh Falls", "Kutumsar Caves", "Indravati River", "Tribal Villages"],
         activities: ["Waterfall Visit", "Boating", "Cave Exploration", "Tribal Culture", "Photography"],
         airport: { name: "Swami Vivekananda Airport", code: "RPR", distance: "300 km" },
+      },
+      {
+        id: "raipur",
+        name: "Raipur",
+        description: "Capital city with modern amenities and gateway to Chhattisgarh's natural wonders.",
+        image: raipurDest,
+        rating: 4.2,
+        avgCost: 10000,
+        bestTime: "October to March",
+        highlights: ["Marine Drive", "Mahant Ghasidas Museum", "Nandan Van Zoo", "Champaran Temple", "MM Fun City"],
+        activities: ["Museum Visit", "Zoo Visit", "Temple Tour", "Shopping", "Local Cuisine"],
+        airport: { name: "Swami Vivekananda Airport", code: "RPR", distance: "15 km" },
       },
     ],
   },
@@ -1292,6 +1584,18 @@ export const indianStates: IndianState[] = [
         bestTime: "March to June, September to December",
         highlights: ["Yumthang Valley", "Zero Point", "Hot Springs", "Rhododendron Sanctuary", "Shingba"],
         activities: ["Valley Drive", "Snow Activities", "Hot Spring Bath", "Photography", "Flower Viewing"],
+      },
+      {
+        id: "tsomgo-lake",
+        name: "Tsomgo Lake",
+        description: "Sacred glacial lake at 12,310 ft with stunning reflections and yak rides.",
+        image: tsomgoDest,
+        rating: 4.7,
+        avgCost: 20000,
+        bestTime: "March to May, October to December",
+        highlights: ["Tsomgo Lake", "Baba Mandir", "Nathula Pass", "Yak Rides", "Cable Car"],
+        activities: ["Lake Visit", "Yak Ride", "Photography", "Border Visit", "Snow Activities"],
+        airport: { name: "Pakyong Airport", code: "PYG", distance: "35 km" },
       },
     ],
   },
@@ -1338,6 +1642,18 @@ export const indianStates: IndianState[] = [
         activities: ["Boating", "Snorkeling", "Cliff Jumping", "Camping", "Border Visit"],
         airport: { name: "Shillong Airport", code: "SHL", distance: "80 km" },
       },
+      {
+        id: "mawlynnong",
+        name: "Mawlynnong",
+        description: "Asia's cleanest village with living root bridges and pristine environment.",
+        image: mawlynnongDest,
+        rating: 4.6,
+        avgCost: 12000,
+        bestTime: "October to May",
+        highlights: ["Cleanest Village", "Living Root Bridge", "Sky Walk", "Balancing Rock", "Bangladesh View"],
+        activities: ["Village Walk", "Root Bridge Trek", "Photography", "Cultural Experience", "Nature Walk"],
+        airport: { name: "Shillong Airport", code: "SHL", distance: "90 km" },
+      },
     ],
   },
   {
@@ -1380,6 +1696,18 @@ export const indianStates: IndianState[] = [
         highlights: ["Satras (Monasteries)", "Mask Making", "Mishing Tribes", "Raas Festival", "Wetlands"],
         activities: ["Monastery Visit", "Cultural Experience", "Mask Making Workshop", "Cycling", "Bird Watching"],
       },
+      {
+        id: "jorhat",
+        name: "Jorhat",
+        description: "Tea capital of the world with endless tea gardens and colonial heritage.",
+        image: jorhatDest,
+        rating: 4.4,
+        avgCost: 12000,
+        bestTime: "October to March",
+        highlights: ["Tea Gardens", "Tocklai Tea Research", "Gibbon Wildlife Sanctuary", "Majuli Ferry", "Colonial Bungalows"],
+        activities: ["Tea Garden Tour", "Tea Tasting", "Wildlife Safari", "Heritage Walk", "River Cruise"],
+        airport: { name: "Jorhat Airport", code: "JRH", distance: "7 km" },
+      },
     ],
   },
   {
@@ -1411,6 +1739,18 @@ export const indianStates: IndianState[] = [
         highlights: ["Apatani Tribal Villages", "Talley Valley", "Kile Pakho", "Dolo Mando", "Music Festival"],
         activities: ["Tribal Village Tour", "Rice Paddy Walk", "Music Festival", "Bird Watching", "Trekking"],
       },
+      {
+        id: "dirang",
+        name: "Dirang",
+        description: "Scenic valley town on the way to Tawang with hot springs and monasteries.",
+        image: dirangDest,
+        rating: 4.5,
+        avgCost: 18000,
+        bestTime: "March to October",
+        highlights: ["Dirang Dzong", "Hot Water Spring", "Kalachakra Gompa", "Sheep Farm", "Apple Orchards"],
+        activities: ["Monastery Visit", "Hot Spring Bath", "Valley Walk", "Photography", "Local Food"],
+        airport: { name: "Tezpur Airport", code: "TEZ", distance: "140 km" },
+      },
     ],
   },
   {
@@ -1430,6 +1770,18 @@ export const indianStates: IndianState[] = [
         bestTime: "October to May, December (Hornbill Festival)",
         highlights: ["War Cemetery", "Hornbill Festival", "State Museum", "Kohima Village", "Naga Heritage Village"],
         activities: ["Festival Experience", "War Cemetery Visit", "Tribal Culture", "Local Cuisine", "Shopping"],
+      },
+      {
+        id: "mon",
+        name: "Mon",
+        description: "Land of the Konyak tribe, known for unique headhunter history and face tattoos.",
+        image: monDest,
+        rating: 4.6,
+        avgCost: 20000,
+        bestTime: "October to May",
+        highlights: ["Konyak Villages", "Angh Houses", "Face Tattooed Elders", "Morung (Youth Dormitory)", "Local Crafts"],
+        activities: ["Village Tour", "Cultural Immersion", "Photography", "Tribal Dance", "Handicraft Shopping"],
+        airport: { name: "Dimapur Airport", code: "DMU", distance: "200 km" },
       },
     ],
   },
@@ -1451,6 +1803,18 @@ export const indianStates: IndianState[] = [
         highlights: ["Loktak Lake", "Kangla Fort", "Ima Keithel", "INA Memorial", "Shree Govindajee Temple"],
         activities: ["Lake Boat Ride", "Women's Market", "Manipuri Dance", "Fort Visit", "Local Cuisine"],
       },
+      {
+        id: "loktak-lake",
+        name: "Loktak Lake",
+        description: "Largest freshwater lake in Northeast with unique floating islands (phumdis).",
+        image: loktakDest,
+        rating: 4.6,
+        avgCost: 14000,
+        bestTime: "October to March",
+        highlights: ["Floating Islands", "Keibul Lamjao National Park", "Sangai Deer", "Sendra Island", "Fishing Villages"],
+        activities: ["Boat Ride", "Wildlife Safari", "Bird Watching", "Photography", "Island Visit"],
+        airport: { name: "Imphal Airport", code: "IMF", distance: "40 km" },
+      },
     ],
   },
   {
@@ -1470,6 +1834,18 @@ export const indianStates: IndianState[] = [
         bestTime: "September to February",
         highlights: ["Neermahal", "Ujjayanta Palace", "Sepahijala Wildlife", "Tripura Sundari Temple", "Unakoti"],
         activities: ["Palace Tour", "Wildlife Safari", "Temple Visit", "Heritage Walk", "Photography"],
+      },
+      {
+        id: "unakoti",
+        name: "Unakoti",
+        description: "Ancient rock carvings site with massive Shiva sculptures carved into hillside.",
+        image: unakotiDest,
+        rating: 4.5,
+        avgCost: 10000,
+        bestTime: "September to February",
+        highlights: ["Rock Carvings", "Unakoti Shiva", "Waterfall", "Archaeological Site", "Nature Trail"],
+        activities: ["Sculpture Tour", "Photography", "Trekking", "Waterfall Visit", "Heritage Walk"],
+        airport: { name: "Maharaja Bir Bikram Airport", code: "IXA", distance: "180 km" },
       },
     ],
   },
@@ -1505,7 +1881,7 @@ export const indianStates: IndianState[] = [
         id: "port-blair",
         name: "Port Blair",
         description: "Capital with Cellular Jail - symbol of India's freedom struggle.",
-        image: goaDest,
+        image: stateAndamanDest,
         rating: 4.5,
         avgCost: 35000,
         bestTime: "October to May",
@@ -1516,7 +1892,7 @@ export const indianStates: IndianState[] = [
         id: "havelock",
         name: "Havelock Island (Swaraj Dweep)",
         description: "Paradise island with Asia's best beach - Radhanagar Beach.",
-        image: goaDest,
+        image: stateAndamanDest,
         rating: 4.9,
         avgCost: 40000,
         bestTime: "October to May",
@@ -1527,7 +1903,7 @@ export const indianStates: IndianState[] = [
         id: "neil-island",
         name: "Neil Island (Shaheed Dweep)",
         description: "Small island with pristine beaches and coral reefs, perfect for relaxation.",
-    image: stateLakshadweepDest,
+        image: stateLakshadweepDest,
         rating: 4.6,
         avgCost: 35000,
         bestTime: "October to May",
@@ -1541,13 +1917,13 @@ export const indianStates: IndianState[] = [
     name: "Lakshadweep",
     region: "south",
     capital: "Kavaratti",
-    image: goaDest,
+    image: stateLakshadweepDest,
     places: [
       {
         id: "kavaratti",
         name: "Kavaratti & Bangaram",
         description: "Pristine coral islands with crystal clear lagoons and water sports.",
-        image: goaDest,
+        image: stateLakshadweepDest,
         rating: 4.8,
         avgCost: 50000,
         bestTime: "October to May",
