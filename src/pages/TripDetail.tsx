@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Globe,
@@ -18,6 +18,7 @@ import {
   ChevronUp,
   Plane,
   Route,
+  Building,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -27,6 +28,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { format, parseISO, differenceInDays } from "date-fns";
 import ItineraryBuilder from "@/components/ItineraryBuilder";
+import FlightSearchModal from "@/components/FlightSearchModal";
+import HotelBookingModal from "@/components/HotelBookingModal";
 
 interface Trip {
   id: string;
@@ -45,11 +48,18 @@ interface Trip {
 const TripDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, loading: authLoading } = useAuth();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
   const [expandedDay, setExpandedDay] = useState<number | null>(1);
-
+  const [showFlightModal, setShowFlightModal] = useState(false);
+  const [showHotelModal, setShowHotelModal] = useState(false);
+  
+  // Check if we should auto-generate itinerary or show booking options
+  const locationState = location.state as { autoGenerateItinerary?: boolean; showBookingOptions?: boolean } | null;
+  const [shouldAutoGenerate, setShouldAutoGenerate] = useState(locationState?.autoGenerateItinerary || false);
+  const [showBookingBanner, setShowBookingBanner] = useState(locationState?.showBookingOptions || false);
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
@@ -174,6 +184,49 @@ const TripDetail = () => {
       </div>
 
       <main className="container mx-auto px-4 py-8">
+        {/* Booking Options Banner */}
+        {showBookingBanner && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-2xl p-6 border border-primary/20 mb-8"
+          >
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-display text-lg font-semibold text-foreground mb-1">
+                  Complete Your Trip Planning
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  Book flights and hotels for your {trip.name} trip
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Button 
+                  onClick={() => setShowFlightModal(true)}
+                  className="btn-gradient"
+                >
+                  <Plane className="w-4 h-4 mr-2" />
+                  Search Flights
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowHotelModal(true)}
+                >
+                  <Building className="w-4 h-4 mr-2" />
+                  Book Hotels
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setShowBookingBanner(false)}
+                >
+                  Dismiss
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Trip Description */}
         {trip.description && (
           <motion.div
@@ -194,6 +247,10 @@ const TripDetail = () => {
               <Route className="w-4 h-4 mr-2" />
               Itinerary
             </TabsTrigger>
+            <TabsTrigger value="bookings">
+              <Plane className="w-4 h-4 mr-2" />
+              Bookings
+            </TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="budget">Budget</TabsTrigger>
             <TabsTrigger value="photos">Photos</TabsTrigger>
@@ -209,7 +266,65 @@ const TripDetail = () => {
               budget={totalBudget}
               description={trip.description}
               tripDuration={tripDuration}
+              autoGenerate={shouldAutoGenerate}
+              onAutoGenerateComplete={() => setShouldAutoGenerate(false)}
             />
+          </TabsContent>
+
+          {/* Bookings Tab */}
+          <TabsContent value="bookings" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-card rounded-2xl p-6 border border-border cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => setShowFlightModal(true)}
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Plane className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg font-semibold text-foreground">
+                      Flight Booking
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Search and compare flights
+                    </p>
+                  </div>
+                </div>
+                <Button className="w-full btn-gradient">
+                  <Plane className="w-4 h-4 mr-2" />
+                  Search Flights
+                </Button>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-card rounded-2xl p-6 border border-border cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => setShowHotelModal(true)}
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                    <Building className="w-6 h-6 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg font-semibold text-foreground">
+                      Hotel Booking
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Find and book hotels
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" className="w-full">
+                  <Building className="w-4 h-4 mr-2" />
+                  Browse Hotels
+                </Button>
+              </motion.div>
+            </div>
           </TabsContent>
 
           {/* Overview Tab */}
@@ -382,6 +497,30 @@ const TripDetail = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Flight Search Modal */}
+      <FlightSearchModal
+        isOpen={showFlightModal}
+        onClose={() => setShowFlightModal(false)}
+        destinationAirport={{
+          name: trip.name,
+          code: trip.name.substring(0, 3).toUpperCase(),
+        }}
+      />
+
+      {/* Hotel Booking Modal */}
+      <HotelBookingModal
+        isOpen={showHotelModal}
+        onClose={() => setShowHotelModal(false)}
+        hotel={{
+          name: `Hotel in ${trip.name}`,
+          rating: 4.2,
+          pricePerNight: 2500,
+          amenities: ["WiFi", "AC", "Breakfast"],
+          distance: "City center",
+        }}
+        placeName={trip.name}
+      />
     </div>
   );
 };
